@@ -1,7 +1,6 @@
 package app
 
 import (
-	"log"
 	"os"
 	"sync"
 	"time"
@@ -53,7 +52,6 @@ func (t *TopicDiscoverer) watch(channel string) {
 	for {
 		select {
 		case <-ticker:
-			log.Println("syncTopics...")
 			t.syncTopics(channel)
 		case <-t.termChan:
 			t.stop()

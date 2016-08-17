@@ -1,8 +1,6 @@
 package app
 
-import (
-	nsq "github.com/nsqio/go-nsq"
-)
+import nsq "github.com/nsqio/go-nsq"
 
 // ConsumerWorker 消费者 Worker
 type ConsumerWorker struct {
@@ -22,16 +20,16 @@ func (w *ConsumerWorker) HandleMessage(m *nsq.Message) error {
 }
 
 func (w *ConsumerWorker) router(r *nsq.Consumer) {
-	closing := false
 	exit := false
-
 	msgHandle := topicHandles[w.Topic].HandleMessage
 	for {
 		select {
 		case <-r.StopChan:
 			exit = true
+		case <-w.ExitChan:
+			exit = true
 		case <-w.termChan:
-			closing = true
+			exit = true
 		case m := <-w.msgChan:
 			//消息处理
 			if err := msgHandle(m); err != nil {
@@ -39,9 +37,6 @@ func (w *ConsumerWorker) router(r *nsq.Consumer) {
 			} else {
 				m.Finish()
 			}
-		}
-		if closing {
-			r.Stop()
 		}
 		if exit {
 			r.Stop()

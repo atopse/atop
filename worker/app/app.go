@@ -116,6 +116,13 @@ func Run() error {
 	return nil
 }
 
+// Stop App
+func Stop() {
+	if discoverer != nil {
+		discoverer.termChan <- syscall.SIGSTOP
+	}
+}
+
 func init() {
 	var err error
 	cfgPath := filepath.Join("config", "app.conf")
