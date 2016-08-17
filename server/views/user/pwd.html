@@ -1,0 +1,47 @@
+{{template "base/base.html" .}} {{define "title"}}修改密码{{end}} {{define "content"}}
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        修改密码
+        <small>修改登录密码</small>
+      </h1>
+    <ol class="breadcrumb">
+        <li><a href="/index"><i class="fa fa-dashboard"></i>主页</a></li>
+        <li class="active">修改密码</li>
+    </ol>
+</section>
+<!-- Main content -->
+<section class="content">
+    <div class="login-box"> 
+        <div class="login-box-body">
+            <form id="passwordForm" method="post">
+                 <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-addon"><i class="fa  fa-lock"></i> </div>
+                        <input type="password" class="form-control" name="oldPassword" placeholder="原密码" />
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-addon"><i class="fa  fa-lock"></i> </div>
+                        <input type="password" class="form-control" name="newPassword" placeholder="新密码" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-addon"><i class="fa  fa-sign-in"></i> </div>
+                        <input type="password" class="form-control" name="newPasswordConfirm" placeholder="再次输入新密码" />
+                    </div>
+                </div>
+                <div class="row"> 
+                    <div class="col-xs-4">
+                        <button type="submit" id="btnSubmit" class="btn btn-primary btn-block btn-flat">修改密码</button>
+                    </div>
+                </div> 
+                <div class="form-group" id="errorbox">
+                </div>
+            </form>
+        </div>
+</section>
+<!-- /.content -->
+{{end}}

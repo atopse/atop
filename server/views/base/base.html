@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+
+<head>
+  {{template "base/header.html" .}} 
+</head>
+
+<body style="display: block;"> 
+    <header>
+      <div class="overall ok">
+        <div class="status" style="opacity: 1;">检查通过</div>
+      </div>
+
+      <div class="toggler narrow" data-toggle="controls">
+        Controls
+      </div>
+
+      <div id="controls" class="controls hide-narrow">
+        <div class="server-not-down">
+           
+          <div class="float-left" id="path-container" style="width: 1000px;">
+              
+          </div>
+
+          <ul class="float-right" id="control-buttons">
+            <li class="fa fa-pause" id="play-pause" title="Play/pause tests"></li>
+            <li class="fa fa-refresh" id="run-tests" title="Run tests"></li>
+            <li class="fa fa-history" id="show-history" title="Test history"></li>
+            <li class="fa fa-bell-o" id="toggle-notif" title="Toggle notifications"></li>
+            <li class="fa fa-cog" id="show-settings" title="Settings"></li>
+            <li class="fa fa-pencil-square-o" id="show-gen" title="Composer"></li>
+          </ul>
+        </div>
+        <div class="server-down" style="display: none;">
+          <span class="flash">NOTICE:</span>
+          <span class="notice-message"><!-- Populated by Javascript --></span>
+        </div>
+
+        <hr class="clear">
+
+
+        <div class="expandable settings" style="display: none;">
+          <div class="container" style="opacity: 0;">
+            <div class="setting">
+              <div class="setting-meta">
+                Theme
+              </div>
+              <div class="setting-val">
+                <ol class="enum" id="theme"><li data-theme="dark" class="sel">Dark</li><li data-theme="dark-bigtext">Dark-BigText</li><li data-theme="light">Light</li></ol> 
+              </div>
+            </div>
+            <div class="setting">
+              <div class="setting-meta">
+                Default
+              </div>
+              <div class="setting-val">
+                <ol class="enum" id="pkg-expand-collapse">
+                  <li data-pkg-expand-collapse="expanded" class="sel">Expand All</li>
+                  <li data-pkg-expand-collapse="collapsed">Collapse All</li>
+                </ol>
+              </div>
+            </div>
+            <div class="setting">
+              <div class="setting-meta">
+                Debug Output
+              </div>
+              <div class="setting-val">
+                <ol class="enum" id="show-debug-output">
+                  <li data-show-debug-output="show" class="sel">Show</li>
+                  <li data-show-debug-output="hide">Hide</li>
+                </ol>
+              </div>
+            </div>
+            <div class="setting">
+              <div class="setting-meta">
+                Effects
+              </div>
+              <div class="setting-val">
+                <ol class="enum" id="ui-effects">
+                  <li data-ui-effects="true" class="sel">Cinematic</li>
+                  <li data-ui-effects="false">Off</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>  
+      </div>
+    </header> 
+    <div class="frame cf" style="height: 100%;"> 
+
+      <div class="col" id="col-1"> 
+         <div class="toggler"  >
+          <a href="">开市检查</a>
+        </div>
+         <div class="toggler"  >
+          <a href="">日间检查</a>
+        </div>
+         <div class="toggler"  >
+          <a href="">A股收市检查</a>
+        </div>
+         <div class="toggler"  >
+          <a href="">A股收市检查</a>
+        </div>
+      </div>
+ 
+      <div class="col" id="col-2">  
+          {{block "myscript" .}}{{end}}
+      </div> 
+      <div class="col" id="col-3">
+        <div class="toggler">
+          日志
+        </div>
+        <div class="togglable log" id="log">
+         <div class="line"><span class="timestamp">[16:14:52.677]</span>欢迎使用！</div>
+         <div class="line"><span class="timestamp">[16:14:52.685]</span>正在初始化界面</div>
+        </div> 
+      </div> 
+    </div>
+    <footer>
+      <section>
+        <span id="summary">
+          <span class="info" id="time"><!-- Populated by Javascript --></span>
+          <span class="info" id="last-test-container">最后检查时间 <span id="last-test">几分钟前</span></span>
+          <span class="info" id="assert-count"><b>1</b> 检查项</span>
+          <span class="info fail-clr" id="fail-count"><b>0</b> 失败</span>
+          <span class="info panic-clr" id="panic-count"><b>0</b> 停止</span>
+          <span class="info skip-clr" id="skip-count"><b>0</b> 跳过</span>
+          <span class="momentjs" id="duration"><b>0.215</b>s</span>
+        </span>
+        <span id="narrow-summary">
+          <span id="narrow-assert-count"><b>1</b></span>:
+          <span class="fail-clr" id="narrow-fail-count"><b>0</b></span> /
+          <span class="panic-clr" id="narrow-panic-count"><b>0</b></span> /
+          <span class="skip-clr" id="narrow-skip-count"><b>0</b></span>
+        </span>
+      </section>
+      <section>
+        <span class="server-not-down">
+          <span class="recording">
+            <i class="fa fa-circle"></i> 检查中
+          </span>
+          <span class="replay" title="Click for current test results">
+            <i class="fa fa-play"></i> 重检中
+          </span>
+          <span class="paused">
+            <i class="fa fa-pause"></i> 已停止
+          </span>
+        </span>
+        <span class="server-down" style="display: none;">
+          <i class="fa fa-exclamation-triangle fa-lg flash"></i>
+          <span class="notice-message"><!-- Populated by Javascript --></span>
+        </span>
+      </section>
+    </footer>
+</body>
+
+</html>

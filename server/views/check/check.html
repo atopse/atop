@@ -1,0 +1,8 @@
+{{template "check/check_layout.html" .}}
+{{define "title"}}首页{{end}}
+
+{{define "content"}}
+     {{range .checkItems}}
+          <li>{{.Name}}</li>
+     {{end}}
+{{end}}
