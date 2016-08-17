@@ -12,6 +12,7 @@ import (
 	"github.com/astaxie/beego/config"
 	"github.com/astaxie/beego/logs"
 	"github.com/nsqio/go-nsq"
+	"github.com/ysqi/atop/common"
 )
 
 // NSQLoger output nsq log info.
@@ -65,6 +66,7 @@ func newConsumerWorker(topic string, channel string, cfg *nsq.Config) (*Consumer
 var (
 	topicHandles = make(map[string]nsq.HandlerFunc)
 
+	discoverer       *TopicDiscoverer
 	cfg              config.Configer
 	nsqLogger        *NSQLoger
 	nsqdTCPAddrs     []string
@@ -105,7 +107,7 @@ func Run() error {
 		nsqCfg.DialTimeout = dialTimeout
 	}
 
-	discoverer := newTopicDiscoverer(nsqCfg)
+	discoverer = newTopicDiscoverer(nsqCfg)
 
 	signal.Notify(discoverer.hupChan, syscall.SIGHUP)
 	signal.Notify(discoverer.termChan, syscall.SIGINT, syscall.SIGTERM)
@@ -116,8 +118,14 @@ func Run() error {
 
 func init() {
 	var err error
-	// fmt.Println(os.Args[0])
-	cfg, err = config.NewConfig("ini", filepath.Join(os.Args[0], "config", "app.conf"))
+	cfgPath := filepath.Join("config", "app.conf")
+	if _, err := os.Stat(cfgPath); os.IsNotExist(err) {
+		cfgPath, err = common.SearchFile(cfgPath)
+		if err != nil {
+			panic(err)
+		}
+	}
+	cfg, err = config.NewConfig("ini", cfgPath)
 	if err != nil {
 		panic("解析配置文件 config/app.conf 时失败," + err.Error())
 	}
