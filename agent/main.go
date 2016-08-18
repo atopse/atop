@@ -1,8 +1,8 @@
 package main
 
 import (
-	_ "git.coding.net/ysqi/atop/agent/docs"
-	_ "git.coding.net/ysqi/atop/agent/routers"
+	_ "github.com/ysqi/atop/agent/docs"
+	_ "github.com/ysqi/atop/agent/routers"
 
 	"github.com/astaxie/beego"
 )

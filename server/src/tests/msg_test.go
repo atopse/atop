@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"git.coding.net/ysqi/atop/common/models"
-	"git.coding.net/ysqi/atop/server/src/biz"
+	"github.com/ysqi/atop/common/models"
+	"github.com/ysqi/atop/server/src/biz"
 	"github.com/astaxie/beego"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/ysqi/beegopkg/web"

@@ -6,8 +6,8 @@ import (
 
 	"github.com/otium/queue"
 
-	"git.coding.net/ysqi/atop/agent/core/exec"
-	m "git.coding.net/ysqi/atop/common/models"
+	"github.com/ysqi/atop/agent/core/exec"
+	m "github.com/ysqi/atop/common/models"
 )
 
 // AddNewCmdToPool Add a new cmd to command pool.

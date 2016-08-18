@@ -1,7 +1,7 @@
 package test
 
 import (
-	_ "git.coding.net/ysqi/atop/agent/routers"
+	_ "github.com/ysqi/atop/agent/routers"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"

@@ -10,8 +10,8 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/otium/queue"
 
-	"git.coding.net/ysqi/atop/agent/core/server"
-	"git.coding.net/ysqi/atop/common/models"
+	"github.com/ysqi/atop/agent/core/server"
+	"github.com/ysqi/atop/common/models"
 )
 
 var msgCenter = &MsgCenter{}

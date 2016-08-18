@@ -11,8 +11,8 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/otium/queue"
 
-	"git.coding.net/ysqi/atop/common/models"
-	"git.coding.net/ysqi/atop/server/src/db"
+	"github.com/ysqi/atop/common/models"
+	"github.com/ysqi/atop/server/src/db"
 )
 
 // TaskMgt 任务工作服务

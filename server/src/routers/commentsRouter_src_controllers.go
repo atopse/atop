@@ -6,7 +6,7 @@ import (
 
 func init() {
 
-	beego.GlobalControllerRouter["git.coding.net/ysqi/atop/server/src/controllers:CheckConroller"] = append(beego.GlobalControllerRouter["git.coding.net/ysqi/atop/server/src/controllers:CheckConroller"],
+	beego.GlobalControllerRouter["github.com/ysqi/atop/server/src/controllers:CheckConroller"] = append(beego.GlobalControllerRouter["github.com/ysqi/atop/server/src/controllers:CheckConroller"],
 		beego.ControllerComments{
 			"Index",
 			`/check/:t:string`,

@@ -20,7 +20,7 @@ package models
 import (
 	"gopkg.in/mgo.v2/bson"
 
-	"git.coding.net/ysqi/atop/common/assertions"
+	"github.com/ysqi/atop/common/assertions"
 )
 
 // CheckItem 检查项

@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"time"
 
-	"git.coding.net/ysqi/atop/common/models"
-	"git.coding.net/ysqi/atop/server/src/db"
+	"github.com/ysqi/atop/common/models"
+	"github.com/ysqi/atop/server/src/db"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/httplib"
 	"github.com/astaxie/beego/toolbox"

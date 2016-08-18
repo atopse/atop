@@ -7,8 +7,8 @@ import (
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
-	"git.coding.net/ysqi/atop/common/models"
-	"git.coding.net/ysqi/atop/server/src/db"
+	"github.com/ysqi/atop/common/models"
+	"github.com/ysqi/atop/server/src/db"
 	"github.com/astaxie/beego"
 )
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/ysqi/com"
 
-	"git.coding.net/ysqi/atop/common/models"
+	"github.com/ysqi/atop/common/models"
 	"github.com/henrylee2cn/mahonia"
 )
 

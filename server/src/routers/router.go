@@ -21,8 +21,8 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/ysqi/beegopkg/web"
 
-	"git.coding.net/ysqi/atop/server/src/api"
-	"git.coding.net/ysqi/atop/server/src/controllers"
+	"github.com/ysqi/atop/server/src/api"
+	"github.com/ysqi/atop/server/src/controllers"
 )
 
 func init() {
@@ -41,5 +41,5 @@ func init() {
 	// beego.InsertFilter("/static/*", beego.BeforeStatic, func(ctx *context.Context) {
 	// 	ctx.Output.Header("Cache-control", "max-age=5")
 	// })
-	beego.SetStaticPath("/main.go", "e:/dev/golang/src/git.coding.net/ysqi/atop/server/main.go")
+	beego.SetStaticPath("/main.go", "e:/dev/golang/src/github.com/ysqi/atop/server/main.go")
 }

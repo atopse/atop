@@ -4,8 +4,8 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/pquerna/ffjson/ffjson"
 
-	"git.coding.net/ysqi/atop/common/models"
-	"git.coding.net/ysqi/atop/server/src/biz"
+	"github.com/ysqi/atop/common/models"
+	"github.com/ysqi/atop/server/src/biz"
 )
 
 // AgentController Agent相关

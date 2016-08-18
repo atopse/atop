@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"git.coding.net/ysqi/atop/worker/app"
+	"github.com/ysqi/atop/worker/app"
 
 	"github.com/astaxie/beego/logs"
 )

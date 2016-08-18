@@ -8,8 +8,8 @@ import (
 	"os"
 	"time"
 
-	"git.coding.net/ysqi/atop/agent/core/server"
-	"git.coding.net/ysqi/atop/common/models"
+	"github.com/ysqi/atop/agent/core/server"
+	"github.com/ysqi/atop/common/models"
 	"github.com/astaxie/beego"
 )
 

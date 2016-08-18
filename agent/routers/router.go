@@ -8,8 +8,8 @@
 package routers
 
 import (
-	"git.coding.net/ysqi/atop/agent/api"
-	"git.coding.net/ysqi/atop/agent/controllers"
+	"github.com/ysqi/atop/agent/api"
+	"github.com/ysqi/atop/agent/controllers"
 
 	"github.com/astaxie/beego"
 )

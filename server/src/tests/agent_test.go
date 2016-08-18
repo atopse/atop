@@ -8,8 +8,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"git.coding.net/ysqi/atop/common/models"
-	_ "git.coding.net/ysqi/atop/server/src/routers"
+	"github.com/ysqi/atop/common/models"
+	_ "github.com/ysqi/atop/server/src/routers"
 
 	"github.com/astaxie/beego"
 	"github.com/pquerna/ffjson/ffjson"

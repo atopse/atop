@@ -3,7 +3,7 @@ package api
 import (
 	// "github.com/astaxie/beego"
 
-	// "git.coding.net/ysqi/atop/server/src/biz"
+	// "github.com/ysqi/atop/server/src/biz"
 	"github.com/ysqi/beegopkg/web"
 )
 

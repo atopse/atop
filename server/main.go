@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/astaxie/beego"
 
-	_ "git.coding.net/ysqi/atop/server/src/db"
-	_ "git.coding.net/ysqi/atop/server/src/routers"
+	_ "github.com/ysqi/atop/server/src/db"
+	_ "github.com/ysqi/atop/server/src/routers"
 )
 
 func main() {

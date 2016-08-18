@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"git.coding.net/ysqi/atop/common/models"
+	"github.com/ysqi/atop/common/models"
 )
 
 var commds = map[string]Commd{}

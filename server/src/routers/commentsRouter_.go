@@ -6,42 +6,42 @@ import (
 
 func init() {
 
-	beego.GlobalControllerRouter["git.coding.net/ysqi/atop/server/src/api:AgentController"] = append(beego.GlobalControllerRouter["git.coding.net/ysqi/atop/server/src/api:AgentController"],
+	beego.GlobalControllerRouter["github.com/ysqi/atop/server/src/api:AgentController"] = append(beego.GlobalControllerRouter["github.com/ysqi/atop/server/src/api:AgentController"],
 		beego.ControllerComments{
 			"SayHello",
 			`/agent/sayhello`,
 			[]string{"post"},
 			nil})
 
-	beego.GlobalControllerRouter["git.coding.net/ysqi/atop/server/src/api:AgentController"] = append(beego.GlobalControllerRouter["git.coding.net/ysqi/atop/server/src/api:AgentController"],
+	beego.GlobalControllerRouter["github.com/ysqi/atop/server/src/api:AgentController"] = append(beego.GlobalControllerRouter["github.com/ysqi/atop/server/src/api:AgentController"],
 		beego.ControllerComments{
 			"Offline",
 			`/agent/offline`,
 			[]string{"post"},
 			nil})
 
-	beego.GlobalControllerRouter["git.coding.net/ysqi/atop/server/src/api:MsgController"] = append(beego.GlobalControllerRouter["git.coding.net/ysqi/atop/server/src/api:MsgController"],
+	beego.GlobalControllerRouter["github.com/ysqi/atop/server/src/api:MsgController"] = append(beego.GlobalControllerRouter["github.com/ysqi/atop/server/src/api:MsgController"],
 		beego.ControllerComments{
 			"ReceiveMsg",
 			`/msg/:msgType:string`,
 			[]string{"post"},
 			nil})
 
-	beego.GlobalControllerRouter["git.coding.net/ysqi/atop/server/src/api:OptCheckController"] = append(beego.GlobalControllerRouter["git.coding.net/ysqi/atop/server/src/api:OptCheckController"],
+	beego.GlobalControllerRouter["github.com/ysqi/atop/server/src/api:OptCheckController"] = append(beego.GlobalControllerRouter["github.com/ysqi/atop/server/src/api:OptCheckController"],
 		beego.ControllerComments{
 			"GetCheckItems",
 			`/optcheck/list/`,
 			[]string{"get"},
 			nil})
 
-	beego.GlobalControllerRouter["git.coding.net/ysqi/atop/server/src/api:OptCheckController"] = append(beego.GlobalControllerRouter["git.coding.net/ysqi/atop/server/src/api:OptCheckController"],
+	beego.GlobalControllerRouter["github.com/ysqi/atop/server/src/api:OptCheckController"] = append(beego.GlobalControllerRouter["github.com/ysqi/atop/server/src/api:OptCheckController"],
 		beego.ControllerComments{
 			"RunCheck",
 			`/optcheck/:checkItemID:string/run`,
 			[]string{"post"},
 			nil})
 
-	beego.GlobalControllerRouter["git.coding.net/ysqi/atop/server/src/api:SystemController"] = append(beego.GlobalControllerRouter["git.coding.net/ysqi/atop/server/src/api:SystemController"],
+	beego.GlobalControllerRouter["github.com/ysqi/atop/server/src/api:SystemController"] = append(beego.GlobalControllerRouter["github.com/ysqi/atop/server/src/api:SystemController"],
 		beego.ControllerComments{
 			"Status",
 			`/sys/status`,

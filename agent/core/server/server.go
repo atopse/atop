@@ -12,7 +12,7 @@ import (
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/ysqi/beegopkg/web"
 
-	"git.coding.net/ysqi/atop/common/models"
+	"github.com/ysqi/atop/common/models"
 )
 
 var serverInfo = models.ServerInfo{}

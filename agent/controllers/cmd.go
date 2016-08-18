@@ -5,8 +5,8 @@ import (
 
 	"github.com/astaxie/beego"
 
-	"git.coding.net/ysqi/atop/agent/core"
-	m "git.coding.net/ysqi/atop/common/models"
+	"github.com/ysqi/atop/agent/core"
+	m "github.com/ysqi/atop/common/models"
 )
 
 // CmdController 接受并处理命令

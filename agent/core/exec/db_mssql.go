@@ -7,7 +7,7 @@ import (
 
 	"github.com/ysqi/com"
 
-	"git.coding.net/ysqi/atop/common/models"
+	"github.com/ysqi/atop/common/models"
 	// 加载MSSQL驱动
 	_ "github.com/denisenkom/go-mssqldb"
 )

@@ -22,7 +22,7 @@ import (
 	"net/http"
 	"testing"
 
-	"git.coding.net/ysqi/atop/common/models"
+	"github.com/ysqi/atop/common/models"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
