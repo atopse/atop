@@ -29,7 +29,6 @@ func TestAppRun(t *testing.T) {
 			case <-exitC:
 				return
 			}
-
 		}
 	}()
 	if err := Run(); err != nil {

@@ -11,8 +11,12 @@ func SearchFile(name string) (string, error) {
 	if name == "" {
 		return "", os.ErrNotExist
 	}
-	_, file, _, _ := runtime.Caller(1)
-	dir := filepath.Dir(file)
+	f, _ := os.Getwd()
+	if f == "" {
+		_, file, _, _ := runtime.Caller(1)
+		f = filepath.Dir(file)
+	}
+	dir := filepath.Dir(f)
 	var fileName string
 	for {
 		if dir == filepath.VolumeName(dir) {
@@ -26,5 +30,8 @@ func SearchFile(name string) (string, error) {
 		}
 		// Parent dir.
 		dir = filepath.Dir(dir)
+		if dir == fileName {
+			return "", os.ErrNotExist
+		}
 	}
 }

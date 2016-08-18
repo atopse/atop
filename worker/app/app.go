@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"syscall"
 	"time"
 
-	"github.com/astaxie/beego/config"
 	"github.com/astaxie/beego/logs"
 	"github.com/nsqio/go-nsq"
 	"github.com/ysqi/atop/common"
@@ -67,7 +65,6 @@ var (
 	topicHandles = make(map[string]nsq.HandlerFunc)
 
 	discoverer       *TopicDiscoverer
-	cfg              config.Configer
 	nsqLogger        *NSQLoger
 	nsqdTCPAddrs     []string
 	lookupdHTTPAddrs []string
@@ -87,23 +84,25 @@ func RegHandle(topic string, h nsq.HandlerFunc) {
 
 // Run APP
 func Run() error {
+	common.RunStartHook()
+
 	if len(topicHandles) == 0 {
 		return errors.New("无 Topic Handle 加载,退出程序")
 	}
 
-	channel := cfg.DefaultString("channel", "main")
+	channel := common.AppCfg.DefaultString("channel", "main")
 
-	nsqdTCPAddrs = cfg.Strings("nsqd-tcp-addrs")
-	lookupdHTTPAddrs = cfg.Strings("lookupd-http-address")
+	nsqdTCPAddrs = common.AppCfg.Strings("nsqd-tcp-addrs")
+	lookupdHTTPAddrs = common.AppCfg.Strings("lookupd-http-address")
 	if len(nsqdTCPAddrs) == 0 && len(lookupdHTTPAddrs) == 0 {
-		return errors.New("确实配置项 nsqd-tcp-addrs 或 lookupd-http-address")
+		return errors.New("必需配置 nsqd-tcp-addrs 或 lookupd-http-address")
 	}
 
 	nsqLogger = &NSQLoger{logs.GetBeeLogger()}
 	nsqCfg := nsq.NewConfig()
 	nsqCfg.UserAgent = fmt.Sprintf("atop_WORKER/%s go-nsq/%s", VERSION, nsq.VERSION)
-	nsqCfg.MaxInFlight = 10
-	if dialTimeout := time.Duration(cfg.DefaultInt("dialTimeout", 0)); dialTimeout > 0 {
+	nsqCfg.MaxInFlight = common.AppCfg.DefaultInt("maxInFlight", 10)
+	if dialTimeout := time.Duration(common.AppCfg.DefaultInt("dialTimeout", 0)); dialTimeout > 0 {
 		nsqCfg.DialTimeout = dialTimeout
 	}
 
@@ -120,20 +119,5 @@ func Run() error {
 func Stop() {
 	if discoverer != nil {
 		discoverer.termChan <- syscall.SIGSTOP
-	}
-}
-
-func init() {
-	var err error
-	cfgPath := filepath.Join("config", "app.conf")
-	if _, err := os.Stat(cfgPath); os.IsNotExist(err) {
-		cfgPath, err = common.SearchFile(cfgPath)
-		if err != nil {
-			panic(err)
-		}
-	}
-	cfg, err = config.NewConfig("ini", cfgPath)
-	if err != nil {
-		panic("解析配置文件 config/app.conf 时失败," + err.Error())
 	}
 }
