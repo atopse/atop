@@ -1,4 +1,4 @@
-package common
+package config
 
 import (
 	"fmt"
@@ -9,6 +9,7 @@ import (
 	"github.com/astaxie/beego/config"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/utils"
+	"github.com/ysqi/atop/common/util"
 )
 
 var (
@@ -38,7 +39,7 @@ func init() {
 	if !utils.FileExists(AppCfgPath) {
 		AppCfgPath = filepath.Join(AppPath, "conf", "app.conf")
 		if !utils.FileExists(AppCfgPath) {
-			if path, err := SearchFile(filepath.Join("conf", "app.conf")); err == nil {
+			if path, err := util.SearchFile(filepath.Join("conf", "app.conf")); err == nil {
 				AppCfgPath = path
 			} else {
 				AppCfgPath = ""
