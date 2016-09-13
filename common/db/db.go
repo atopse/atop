@@ -1,26 +1,22 @@
 package db
 
 import (
-	"errors"
-	"fmt"
 	"time"
 
-	"github.com/astaxie/beego"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+
+	"github.com/ysqi/atop/common/config"
+	"github.com/ysqi/atop/common/log2"
 )
 
 var dialInfo *mgo.DialInfo
 var mongoSession *mgo.Session
 
 func init() {
-	beego.AddAPPStartHook(initDBInfo)
-}
-
-func initDBInfo() error {
-	c, err := beego.AppConfig.GetSection("serverdb")
+	c, err := config.AppCfg.GetSection("serverdb")
 	if err != nil {
-		return err
+		log2.Fatalf("获取数据库配置[serverdb]失败,%s", err)
 	}
 	dbName := c["name"]
 	host := c["host"]
@@ -28,16 +24,16 @@ func initDBInfo() error {
 	pwd := c["password"]
 
 	if dbName == "" {
-		return errors.New("尚未配置指定数据库名称,配置信息[serverdb::name]")
+		log2.Fatalln("尚未配置指定数据库名称,配置信息[serverdb::name]")
 	}
 	if host == "" {
-		return errors.New("尚未配置数据库连接地址,配置信息[serverdb:host]")
+		log2.Fatalln("尚未配置数据库连接地址,配置信息[serverdb:host]")
 	}
 	if userName == "" {
-		return errors.New("尚未配置数据库连接用户，配置信息[serverdb:user]")
+		log2.Fatalln("尚未配置数据库连接用户，配置信息[serverdb:user]")
 	}
 	if pwd == "" {
-		return errors.New("尚未配置数据库连接用户密码，配置信息[serverdb:pwd]")
+		log2.Fatalln("尚未配置数据库连接用户密码，配置信息[serverdb:pwd]")
 	}
 
 	dialInfo = &mgo.DialInfo{
@@ -47,14 +43,13 @@ func initDBInfo() error {
 		Username: userName,
 		Password: pwd,
 	}
-	beego.Info("现尝试连接数据库")
+	log2.Infof("测试数据库MongoDB='%s@%s/%s连接'", userName, dbName, host)
 	mongoSession, err = mgo.DialWithInfo(dialInfo)
 	if err != nil {
-		return fmt.Errorf("连接数据库失败，%s", err.Error())
+		log2.Fatalf("连接数据库失败,%s", err)
 	}
 	mongoSession.SetMode(mgo.Monotonic, true)
-	beego.Info("登陆用户", userName, "连接数据库", host, "/", dbName, "成功")
-	return nil
+	log2.Info("登陆用户", userName, "连接数据库", host, "/", dbName, "成功")
 }
 
 // NewSession 新
