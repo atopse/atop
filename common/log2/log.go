@@ -1,7 +1,11 @@
 package log2
 
-import "github.com/astaxie/beego/logs"
-import "fmt"
+import (
+	"fmt"
+	"os"
+
+	"github.com/astaxie/beego/logs"
+)
 
 var (
 	logger = &Logger{logs.GetBeeLogger()}
@@ -70,5 +74,22 @@ func Debugf(f string, v ...interface{}) {
 
 // Debug logs a message at debug level.
 func Debug(v ...interface{}) {
-	logs.Debug(fmt.Sprint(v))
+	logger.Debug(fmt.Sprint(v))
+}
+
+// Fatalln Print Log with Error()  followed by a call to os.Exit(1).
+func Fatalln(v ...interface{}) {
+	logger.Error(fmt.Sprint(v))
+	os.Exit(1)
+}
+
+// Fatalf Print Log with Error()  followed by a call to os.Exit(1).
+func Fatalf(f string, v ...interface{}) {
+	logger.Error(f, v...)
+	os.Exit(1)
+}
+
+func init() {
+	// logs.SetLogFuncCall(true)
+	logs.SetLogFuncCallDepth(4)
 }
