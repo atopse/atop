@@ -9,6 +9,7 @@ import (
 	"github.com/astaxie/beego/config"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/utils"
+	"github.com/ysqi/atop/common/log2"
 	"github.com/ysqi/atop/common/util"
 )
 
@@ -26,7 +27,6 @@ func init() {
 	if AppPath, err = filepath.Abs(filepath.Dir(os.Args[0])); err != nil {
 		panic(err)
 	}
-
 	if p := os.Getenv("AppConfigPath"); p != "" && utils.FileExists(p) {
 		AppCfgPath = p
 	} else {
@@ -51,6 +51,7 @@ func init() {
 			}
 		}
 	}
+	log2.Infof("App Config Path=%q", AppCfgPath)
 	if err = parseConfig(AppCfgPath); err != nil {
 		panic(err)
 	}
