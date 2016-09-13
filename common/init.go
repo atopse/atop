@@ -8,16 +8,20 @@ var (
 	maxPriotiy = 10
 )
 
-// AddAPPStartHook is used to register the hookfunc
+// AddStartHook is used to register the hookfunc
 // The hookfuncs will run in RunStartHook()
-// such as load Config
-func AddAPPStartHook(priority int, hf hookfunc) {
-	if priority < 0 {
-		priority = 0
-	} else if priority > maxPriotiy {
-		priority = maxPriotiy
+// priority 范围 0-10；执行顺序为：0->10.
+func AddStartHook(hf hookfunc, priority ...int) {
+	p := maxPriotiy
+	if len(priority) > 0 {
+		p = priority[0]
+		if p < 0 {
+			p = 0
+		} else if p > maxPriotiy {
+			p = maxPriotiy
+		}
 	}
-	hooks[priority] = append(hooks[priority], hf)
+	hooks[p] = append(hooks[p], hf)
 }
 
 // RunStartHook is

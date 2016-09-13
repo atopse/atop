@@ -30,7 +30,6 @@ type TopicDiscoverer struct {
 }
 
 func (td *TopicDiscoverer) startTopicWatch(c *ConsumerWorker) {
-	log2.Debugf("开始监控Consumer,status=%v", c.C.Stats())
 	td.wg.Add(1)
 	defer td.wg.Done()
 	go c.watch()

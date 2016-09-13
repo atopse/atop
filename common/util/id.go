@@ -49,6 +49,11 @@ func readMachineID() []byte {
 
 // NewID returns a new unique ObjectId.
 func NewID() string {
+	return fmt.Sprintf("%x", NewIDHex())
+}
+
+// NewIDHex return a new unique ObjectId Hex.
+func NewIDHex() []byte {
 	var b [12]byte
 	// Timestamp, 4 bytes, big endian
 	binary.BigEndian.PutUint32(b[:], uint32(time.Now().Unix()))
@@ -64,5 +69,5 @@ func NewID() string {
 	b[9] = byte(i >> 16)
 	b[10] = byte(i >> 8)
 	b[11] = byte(i)
-	return fmt.Sprintf("%x", b)
+	return b[:]
 }
