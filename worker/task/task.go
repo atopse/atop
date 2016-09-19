@@ -66,7 +66,7 @@ func NewProcess(msg *models.Msg) error {
 		return common.BadBodyErr("缺失TaskID(CommandID)")
 	}
 
-	if process.Content.Tag == "" {
+	if process.Tag == "" {
 		return common.BadBodyErr("任务进行消息Tag不能为空")
 	}
 
@@ -76,8 +76,8 @@ func NewProcess(msg *models.Msg) error {
 	}
 
 	var newStatus models.TaskStatus
-	if process.Content.Tag == "newStatus" {
-		s := process.Content.Body.(string)
+	if process.Tag == "newStatus" {
+		s := process.Body.(string)
 		if s == "" {
 			return common.BadBodyErr("Tag=newStatus时，新状态内容不能为空字符串")
 		}
@@ -85,7 +85,7 @@ func NewProcess(msg *models.Msg) error {
 		if newStatus != models.TaskStatusErrorDown && newStatus != models.TaskStatusProcessing && newStatus != models.TaskStatusCompleted {
 			return fmt.Errorf("无法处理的任务状态%q", newStatus)
 		}
-	} else if process.Content.Tag == "error" {
+	} else if process.Tag == "error" {
 		newStatus = models.TaskStatusErrorDown
 	}
 
@@ -97,7 +97,7 @@ func NewProcess(msg *models.Msg) error {
 	taskLog := &models.TaskLog{
 		TaskID:         process.CommandID,
 		OccurrenceTime: msg.Created,
-		Content:        process.Content,
+		Content:        process.Body,
 	}
 	handle.PushTaskLog(taskLog)
 	return nil

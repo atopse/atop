@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ysqi/atop/common/models"
-	"github.com/ysqi/atop/server/biz"
 	"github.com/astaxie/beego"
 	. "github.com/smartystreets/goconvey/convey"
+	"github.com/ysqi/atop/common/models"
+	"github.com/ysqi/atop/server/biz"
 	"github.com/ysqi/beegopkg/web"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -34,18 +34,17 @@ func TestPushCommandMsg(t *testing.T) {
 			Target:      task.ID,
 			ContentType: "command",
 			Created:     time.Now(),
-		}
-		process := models.CmdExecProcess{
-			CommandID: task.ID,
-			Status:    "begin",
-			Content: map[string]interface{}{
-				"key1": "value1",
-				"key2": 2,
-				"key3": 3.33,
-				"key4": time.Now(),
+			Content: models.CmdExecProcess{
+				CommandID: task.ID,
+				Tag:       "processing",
+				Body: map[string]interface{}{
+					"key1": "value1",
+					"key2": 2,
+					"key3": 3.33,
+					"key4": time.Now(),
+				},
 			},
 		}
-		msg.Content = process
 		r, _ := http.NewRequest("POST", "/api/msg/command", nil)
 		bodyWithJSON(r, msg)
 		w := httptest.NewRecorder()
@@ -54,6 +53,6 @@ func TestPushCommandMsg(t *testing.T) {
 		actual, err := bufferToStruct(w.Body)
 		So(err, ShouldBeNil)
 		So(w, ShouldBeGoodResponse)
-		So(actual, ShouldBeEqualResponse, &web.Response{Code: 200, Success: true})
+		So(actual, ShouldBeEqualResponse, &web.Response{StatusCode: 200})
 	})
 }

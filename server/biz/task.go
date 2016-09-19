@@ -107,7 +107,7 @@ func (t *TaskService) PushTaskProcess(msg *models.Msg) error {
 		return errors.New("缺失TaskID(CommandID)")
 	}
 
-	if process.Content.Tag == "" {
+	if process.Tag == "" {
 		return errors.New("任务进行消息Tag不能为空")
 	}
 
@@ -117,8 +117,8 @@ func (t *TaskService) PushTaskProcess(msg *models.Msg) error {
 	}
 
 	var newStatus models.TaskStatus
-	if process.Content.Tag == "newStatus" {
-		s := process.Content.Body.(string)
+	if process.Tag == "newStatus" {
+		s := process.Body.(string)
 		if s == "" {
 			return fmt.Errorf("无法处理的任务状态%q", s)
 		}
@@ -126,27 +126,28 @@ func (t *TaskService) PushTaskProcess(msg *models.Msg) error {
 		if newStatus != models.TaskStatusErrorDown && newStatus != models.TaskStatusProcessing && newStatus != models.TaskStatusCompleted {
 			return fmt.Errorf("无法处理的任务状态%q", newStatus)
 		}
-	} else if process.Content.Tag == "error" {
+	} else if process.Tag == "error" {
 		newStatus = models.TaskStatusErrorDown
 	}
-
-	//started,processing,stopped,completed
-	//先更新状态，再记录日志
-	err := t.UpdateTaskStatus(taskID, newStatus)
-	if err != nil {
-		taskLog := &models.TaskLog{
-			TaskID:         process.CommandID,
-			OccurrenceTime: msg.Created,
-			Content:        map[string]interface{}{"error": err, "message": process.Content},
+	if newStatus != "" {
+		//started,processing,stopped,completed
+		//先更新状态，再记录日志
+		err := t.UpdateTaskStatus(taskID, newStatus)
+		if err != nil {
+			taskLog := &models.TaskLog{
+				TaskID:         process.CommandID,
+				OccurrenceTime: msg.Created,
+				Content:        map[string]interface{}{"error": err, "message": process.Body},
+			}
+			t.pushLog(taskLog)
+			// t.PushLog(taskID, fmt.Sprintf("任务新状态:%s-%v,更新失败:%s", process.Tag, process.Body, err.Error()))
+			return err
 		}
-		t.pushLog(taskLog)
-		// t.PushLog(taskID, fmt.Sprintf("任务新状态:%s-%v,更新失败:%s", process.Content.Tag, process.Content.Body, err.Error()))
-		return err
 	}
 	taskLog := &models.TaskLog{
 		TaskID:         process.CommandID,
 		OccurrenceTime: msg.Created,
-		Content:        process.Content,
+		Content:        process,
 	}
 	t.pushLog(taskLog)
 	return nil

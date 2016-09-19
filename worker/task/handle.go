@@ -48,7 +48,7 @@ func (m *MessageHandle) HandelNewProcess(message *nsq.Message) error {
 			OccurrenceTime: msg.Created,
 			Content: map[string]interface{}{
 				"error":   fmt.Sprintf("任务进度处理失败，%s", err),
-				"message": process.Content},
+				"message": process.Body},
 		}
 		m.PushTaskLog(taskLog)
 	}

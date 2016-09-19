@@ -70,10 +70,8 @@ type TaskLog struct {
 // CmdExecProcess CMD命令执行进度报告
 type CmdExecProcess struct {
 	CommandID bson.ObjectId `bson:"_id,omitempty"` //对应的 command ID
-	Content   struct {
-		Tag  string      `bson:"tag"`
-		Body interface{} `bson:"body"`
-	}
+	Tag       string        `bson:"tag"`
+	Body      interface{}   `bson:"body"`
 	// Status string //状态：started,processing,stopped,completed
 	// Process   int           //进度
 }
