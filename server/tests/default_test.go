@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"testing"
 
-	_ "github.com/ysqi/atop/server/src/routers"
+	_ "github.com/ysqi/atop/server/routers"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/utils"

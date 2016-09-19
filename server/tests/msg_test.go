@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/ysqi/atop/common/models"
-	"github.com/ysqi/atop/server/src/biz"
+	"github.com/ysqi/atop/server/biz"
 	"github.com/astaxie/beego"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/ysqi/beegopkg/web"

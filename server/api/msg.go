@@ -7,7 +7,7 @@ import (
 	"github.com/pquerna/ffjson/ffjson"
 
 	"github.com/ysqi/atop/common/models"
-	"github.com/ysqi/atop/server/src/biz"
+	"github.com/ysqi/atop/server/biz"
 )
 
 // MsgController 消息处理

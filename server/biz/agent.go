@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/ysqi/atop/common/models"
-	"github.com/ysqi/atop/server/src/db"
+	"github.com/ysqi/atop/server/db"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/httplib"
 	"github.com/astaxie/beego/toolbox"

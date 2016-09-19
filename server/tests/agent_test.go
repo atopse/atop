@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/ysqi/atop/common/models"
-	_ "github.com/ysqi/atop/server/src/routers"
+	_ "github.com/ysqi/atop/server/routers"
 
 	"github.com/astaxie/beego"
 	"github.com/pquerna/ffjson/ffjson"

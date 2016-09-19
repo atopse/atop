@@ -12,7 +12,7 @@ import (
 	"github.com/otium/queue"
 
 	"github.com/ysqi/atop/common/models"
-	"github.com/ysqi/atop/server/src/db"
+	"github.com/ysqi/atop/server/db"
 )
 
 // TaskMgt 任务工作服务
