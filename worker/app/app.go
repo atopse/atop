@@ -37,7 +37,7 @@ func init() {
 	nsqdTCPAddr = config.AppCfg.String("nsqd-tcp-addr")
 	lookupdHTTPAddrs = config.AppCfg.Strings("lookupd-http-address")
 	if nsqdTCPAddr == "" {
-		log.Fatalln("必需配置 nsqd-tcp-addrs")
+		log.Fatalln("必需配置 nsqd-tcp-addr")
 	}
 	if len(lookupdHTTPAddrs) == 0 {
 		log.Fatalln("必需配置 lookupd-http-address")
