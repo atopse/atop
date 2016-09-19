@@ -31,13 +31,19 @@ func (a *AgentController) SayHello() {
 }
 
 // Offline Agent 下线通知
+// @Param ip body string true "待下线Agent的IP"
 // @router /agent/offline [post]
 func (a *AgentController) Offline() {
-	ip := a.GetString("ip")
+	data := make(map[string]string)
+	if err := ffjson.Unmarshal(a.Ctx.Input.RequestBody, &data); err != nil {
+		a.OutputError(err)
+		return
+	}
+	ip := data["ip"]
 	if ip == "" {
 		a.OutputError("缺少参数ip")
 		return
 	}
-	biz.AgentMgt.UpdateAgentStatus(ip, models.AgentStatusOffline)
-	a.OutputSuccess()
+	err := biz.AgentMgt.UpdateAgentStatus(ip, models.AgentStatusOffline)
+	a.OutputDoResult(err)
 }

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/ysqi/atop/common/models"
+	"github.com/ysqi/atop/server/biz"
 
 	"github.com/astaxie/beego"
 	. "github.com/smartystreets/goconvey/convey"
@@ -71,4 +72,42 @@ func TestFindAgent(t *testing.T) {
 
 	})
 
+}
+
+func TestAgentOffline(t *testing.T) {
+	ip := "127.0.0.1"
+	type data struct {
+		IP string `json:"ip"`
+	}
+	testCases := []struct {
+		title string
+		data  data
+		want  *web.Response
+	}{
+		{title: "参数IP不能为空", data: data{IP: ""}, want: &web.Response{StatusCode: 500}},
+		{title: "参数IP必须合法", data: data{IP: "127.0.0.555"}, want: &web.Response{StatusCode: 500}},
+		{title: "Agent不存在时无法更新", data: data{IP: "127.0.0.111"}, want: &web.Response{StatusCode: 404}},
+		{title: "Agent存在时更新成功", data: data{IP: ip}, want: &web.Response{StatusCode: 200}},
+	}
+	Convey("Agent离线请求测试", t, func() {
+		for _, c := range testCases {
+			Convey(c.title, func() {
+				r, _ := http.NewRequest("POST", "/api/agent/offline", nil)
+				bodyWithJSON(r, c.data)
+				w := httptest.NewRecorder()
+				beego.BeeApp.Handlers.ServeHTTP(w, r)
+				ShouldBeGoodResponse(w)
+				actual, err := bufferToStruct(w.Body)
+				So(err, ShouldBeNil)
+				So(w, ShouldBeGoodResponse)
+				So(actual, ShouldBeEqualResponse, c.want)
+			})
+		}
+		Convey("Agent离线DB检查", func() {
+			agent, err := biz.AgentMgt.GetAgentInfo(ip, true)
+			So(err, ShouldBeNil)
+			So(agent.IP, ShouldEqual, ip)
+			So(agent.Status, ShouldEqual, models.AgentStatusOffline)
+		})
+	})
 }
