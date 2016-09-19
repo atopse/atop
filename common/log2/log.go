@@ -64,7 +64,7 @@ func Infof(f string, v ...interface{}) {
 
 // Info compatibility alias for Info()
 func Info(v ...interface{}) {
-	logger.Info(fmt.Sprint(v))
+	logger.Info(fmt.Sprint(v...))
 }
 
 // Debugf logs a message at debug level.
@@ -90,6 +90,5 @@ func Fatalf(f string, v ...interface{}) {
 }
 
 func init() {
-	// logs.SetLogFuncCall(true)
-	logs.SetLogFuncCallDepth(4)
+	logs.SetLogFuncCall(false)
 }

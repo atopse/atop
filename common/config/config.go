@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/astaxie/beego/config"
-	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/utils"
 	"github.com/ysqi/atop/common/log2"
 	"github.com/ysqi/atop/common/util"
@@ -51,7 +50,6 @@ func init() {
 			}
 		}
 	}
-	log2.Infof("App Config Path=%q", AppCfgPath)
 	if err = parseConfig(AppCfgPath); err != nil {
 		panic(err)
 	}
@@ -59,6 +57,7 @@ func init() {
 
 // now only support ini, next will support json.
 func parseConfig(appConfigPath string) (err error) {
+	log2.Infof("Load Config From %q", AppCfgPath)
 	AppCfg, err = newAppConfig("ini", appConfigPath)
 	if err != nil {
 		return err
@@ -75,7 +74,7 @@ func assignConfig(ac config.Configer) error {
 	}
 	AppCfg.AppName = ac.String("AppName")
 
-	logOuputs := make(map[string]string)
+	logOuputs := map[string]string{"console": ""}
 	if lo := ac.String("LogOutputs"); lo != "" {
 		los := strings.Split(lo, ";")
 		for _, v := range los {
@@ -86,16 +85,16 @@ func assignConfig(ac config.Configer) error {
 			}
 		}
 	}
-
 	//init log
-	logs.Reset()
+	logger := log2.GetLogger()
+	logger.Reset()
 	for adaptor, config := range logOuputs {
-		err := logs.SetLogger(adaptor, config)
+		err := logger.SetLogger(adaptor, config)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, fmt.Sprintf("%s with the config %q got err:%s", adaptor, config, err.Error()))
 		}
 	}
-	logs.SetLogFuncCall(true)
+	logger.EnableFuncCallDepth(false)
 	return nil
 }
 

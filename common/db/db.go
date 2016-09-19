@@ -14,6 +14,7 @@ var dialInfo *mgo.DialInfo
 var mongoSession *mgo.Session
 
 func init() {
+	log2.Info("初始化数据库连接...")
 	c, err := config.AppCfg.GetSection("serverdb")
 	if err != nil {
 		log2.Fatalf("获取数据库配置[serverdb]失败,%s", err)
@@ -49,7 +50,7 @@ func init() {
 		log2.Fatalf("连接数据库失败,%s", err)
 	}
 	mongoSession.SetMode(mgo.Monotonic, true)
-	log2.Info("登陆用户", userName, "连接数据库", host, "/", dbName, "成功")
+	log2.Infof("初始化数据库连接成功,登录用户<%s>,数据库<%s@%s>", userName, dbName, host)
 }
 
 // NewSession 新
