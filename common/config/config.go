@@ -1,6 +1,7 @@
 package config
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -22,6 +23,12 @@ var (
 )
 
 func init() {
+	cfgName := "app.conf"
+	//检查是否是test环境下
+	if flag.Lookup("test.v") != nil {
+		cfgName = "app.test.conf"
+	}
+
 	var err error
 	if AppPath, err = filepath.Abs(filepath.Dir(os.Args[0])); err != nil {
 		panic(err)
@@ -33,12 +40,12 @@ func init() {
 		if err != nil {
 			panic(err)
 		}
-		AppCfgPath = filepath.Join(workPath, "conf", "app.conf")
+		AppCfgPath = filepath.Join(workPath, "conf", cfgName)
 	}
 	if !utils.FileExists(AppCfgPath) {
-		AppCfgPath = filepath.Join(AppPath, "conf", "app.conf")
+		AppCfgPath = filepath.Join(AppPath, "conf", cfgName)
 		if !utils.FileExists(AppCfgPath) {
-			if path, err := util.SearchFile(filepath.Join("conf", "app.conf")); err == nil {
+			if path, err := util.SearchFile(filepath.Join("conf", cfgName)); err == nil {
 				AppCfgPath = path
 			} else {
 				AppCfgPath = ""
