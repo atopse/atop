@@ -21,8 +21,8 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/ysqi/beegopkg/web"
 
-	"github.com/ysqi/atop/server/api"
-	"github.com/ysqi/atop/server/controllers"
+	"github.com/ysqi/atop/server/controllers/api"
+	webc "github.com/ysqi/atop/server/controllers/web"
 )
 
 func init() {
@@ -36,7 +36,7 @@ func init() {
 		),
 	)
 	beego.AddNamespace(ns)
-	beego.Include(&controllers.CheckConroller{})
+	beego.Include(&webc.CheckConroller{})
 
 	// beego.InsertFilter("/static/*", beego.BeforeStatic, func(ctx *context.Context) {
 	// 	ctx.Output.Header("Cache-control", "max-age=5")

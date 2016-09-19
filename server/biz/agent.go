@@ -5,8 +5,6 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/ysqi/atop/common/models"
-	"github.com/ysqi/atop/server/db"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/httplib"
 	"github.com/astaxie/beego/toolbox"
@@ -14,6 +12,9 @@ import (
 	"github.com/ysqi/beegopkg/web"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+
+	"github.com/ysqi/atop/common/db"
+	"github.com/ysqi/atop/common/models"
 )
 
 // AgentMgt Agent管理

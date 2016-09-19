@@ -7,9 +7,9 @@ import (
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/ysqi/atop/common/models"
-	"github.com/ysqi/atop/server/db"
 	"github.com/astaxie/beego"
+	"github.com/ysqi/atop/common/db"
+	"github.com/ysqi/atop/common/models"
 )
 
 // OptCheck 三班操作检查项
