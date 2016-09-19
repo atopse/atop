@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/astaxie/beego"
 	"github.com/pquerna/ffjson/ffjson"
 
 	"github.com/ysqi/atop/common/models"
@@ -20,8 +19,6 @@ func (a *AgentController) SayHello() {
 	agent := &models.AgentInfo{}
 	err := ffjson.Unmarshal(a.Ctx.Input.RequestBody, agent)
 	if err != nil {
-		beego.Debug("Request:", string(a.Ctx.Input.RequestBody))
-		beego.Debug(err)
 		a.OutputError(err)
 		return
 	}
