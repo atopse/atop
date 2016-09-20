@@ -1,3 +1,9 @@
+// Copyright 2016 The Ysqi Authors. All rights reserved.
+// Licensed under the Apache License, Version 2.0 (the "License");
+
+//自动化运维 Server 端程序 .
+//
+//基于 Beego 框架实现的Go Web 程序,作为自动化运维软件的Server端,负责和各Agent通信以及提供操作端UI.
 package main
 
 import (
