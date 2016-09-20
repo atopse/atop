@@ -5,6 +5,7 @@ import (
 
 	"github.com/ysqi/atop/common/models"
 	"github.com/ysqi/atop/server/biz"
+	"github.com/ysqi/com"
 )
 
 // AgentController Agent相关
@@ -26,8 +27,9 @@ func (a *AgentController) SayHello() {
 		a.OutputError(err)
 		return
 	}
-	biz.AgentMgt.FindAgent(*agent)
-	a.OutputSuccess()
+	err = biz.AgentMgt.UpdateAgent(*agent, true)
+	a.OutputDoResult(err)
+
 }
 
 // Offline Agent 下线通知
@@ -42,6 +44,10 @@ func (a *AgentController) Offline() {
 	ip := data["ip"]
 	if ip == "" {
 		a.OutputError("缺少参数ip")
+		return
+	}
+	if com.IsIP(ip) == false {
+		a.OutputError("参数ip非法")
 		return
 	}
 	err := biz.AgentMgt.UpdateAgentStatus(ip, models.AgentStatusOffline)

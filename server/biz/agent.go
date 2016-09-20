@@ -1,11 +1,10 @@
 package biz
 
 import (
-	"errors"
+	"fmt"
 	"io/ioutil"
 	"time"
 
-	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/httplib"
 	"github.com/astaxie/beego/toolbox"
 	"github.com/pquerna/ffjson/ffjson"
@@ -13,7 +12,9 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
+	"github.com/ysqi/atop/common/config"
 	"github.com/ysqi/atop/common/db"
+	"github.com/ysqi/atop/common/log2"
 	"github.com/ysqi/atop/common/models"
 )
 
@@ -28,9 +29,12 @@ type AgentService struct {
 }
 
 // GetAgentInfo 获取Agent信息，可选择从数据库获取，否则从内存中获取.
-func (o *AgentService) GetAgentInfo(ip string, formDB bool) (*models.AgentInfo, error) {
+//
+// 如果 fromDB 为 true,则从数据库中根据IP查询匹配的Agent信息,否则直接从内存中获取.
+// 但是当内存中不存在此Ageng信息时将强制从数据库中查找.
+func (as *AgentService) GetAgentInfo(ip string, formDB bool) (*models.AgentInfo, error) {
 	if formDB == false {
-		agent := o.AgentStore[ip]
+		agent := as.AgentStore[ip]
 		//存在则返回，否则DB从查找
 		if agent != nil {
 			return agent, nil
@@ -40,39 +44,59 @@ func (o *AgentService) GetAgentInfo(ip string, formDB bool) (*models.AgentInfo, 
 	err := db.Do(func(d *mgo.Database) error {
 		return d.C("agent").Find(bson.M{"ip": ip}).One(agent)
 	})
+	//如果从数据库中有查找到Agent则更新到内存中.
+	if err != nil && agent.ID != "" {
+		as.AgentStore[ip] = agent
+	}
 	return agent, err
 }
 
-// FindAgent 更新Agent状态
-func (o *AgentService) FindAgent(agent models.AgentInfo) {
-	agent.Status = models.AgentStatusOnline
-	if old := o.AgentStore[agent.IP]; old == nil {
-		o.AgentStore[agent.IP] = &agent
-		err := o.saveAgent(&agent)
-		if err != nil {
-			beego.Error("保存Agent信息失败,", err)
-			return
-		}
-	} else if old.Status != models.AgentStatusOnline {
-		//需要更新数据
-		err := o.saveAgent(&agent)
-		if err != nil {
-			beego.Error("更新Agent信息失败,", err)
-			return
-		}
-		o.AgentStore[agent.IP] = &agent
+// UpdateAgent 依据IP更新Agent,同步更新内存和数据库.
+// 更新数据库时仅仅更新:name,url,description,status,updated字段.
+func (as *AgentService) UpdateAgent(agent models.AgentInfo, online bool) error {
+	if err := agent.Verify(); err != nil {
+		return err
 	}
-	if err := o.UpdateAgentStatus(agent.IP, agent.Status); err != nil {
-		beego.Warn("更新Agent状态失败，", err)
+	if online {
+		agent.Status = models.AgentStatusOnline
+	} else {
+		if a := as.AgentStore[agent.IP]; a != nil {
+			agent.Status = a.Status
+		} else {
+			agent.Status = models.AgentStatusUnknown
+		}
 	}
+	//优先保存到内存
+	as.AgentStore[agent.IP] = &agent
+
+	return db.Do(func(d *mgo.Database) error {
+		c := d.C("agent")
+		if count, err := c.Find(bson.M{"ip": agent.IP}).Count(); err != nil {
+			return err
+		} else if count == 0 {
+			agent.ID = bson.NewObjectId()
+			return c.Insert(agent)
+		} else {
+			_, err := c.Upsert(&bson.M{"ip": agent.IP}, bson.M{
+				"$set": bson.M{
+					"name":        agent.Name,
+					"url":         agent.URL,
+					"description": agent.Desc,
+					"status":      agent.Status,
+					"updated":     time.Now(),
+				},
+			})
+			return err
+		}
+	})
 }
 
-// UpdateAgentStatus 更新 Agent状态
-func (o *AgentService) UpdateAgentStatus(agentIP string, status models.AgentStatus) error {
-	if agentIP == "" {
+// UpdateAgentStatus 更新 Agent状态.
+func (as *AgentService) UpdateAgentStatus(ip string, status models.AgentStatus) error {
+	if ip == "" {
 		return nil
 	}
-	agent, err := o.GetAgentInfo(agentIP, false)
+	agent, err := as.GetAgentInfo(ip, false)
 	if err != nil {
 		return err
 	}
@@ -90,106 +114,43 @@ func (o *AgentService) UpdateAgentStatus(agentIP string, status models.AgentStat
 	})
 }
 
-// GetOnlineAgent 获取Agent
-func (o *AgentService) GetOnlineAgent(ip, ip2 string) *models.AgentInfo {
-	if ip == "" {
-		ip = ip2
-	}
-	if ip == "" {
-		return nil
-	}
-	agent := o.AgentStore[ip]
+// GetOnlineAgent 返回在线的Agent.
+// 优先根据ip检查内存中在线的Agent,否则依次从backupIP 列表中检查,直到得到在线的Agent.
+func (as *AgentService) GetOnlineAgent(ip string, backupIPs ...string) *models.AgentInfo {
+	agent := as.AgentStore[ip]
 	if agent == nil || agent.Status != models.AgentStatusOnline {
-		if ip2 == "" {
+		if len(backupIPs) == 0 {
 			return nil
 		}
-		return o.GetOnlineAgent(ip2, "")
+		return as.GetOnlineAgent(backupIPs[0], backupIPs[1:]...)
 	}
 	return agent
 }
 
-func (a *AgentService) saveAgent(agent *models.AgentInfo) error {
-	if agent == nil {
-		return nil
-	}
-	if agent.IP == "" {
-		return errors.New("Agent.IP不能为空")
-	}
-	return db.Do(func(d *mgo.Database) error {
-		c := d.C("agent")
-		query := c.Find(bson.M{"ip": agent.IP})
-		if count, err := query.Count(); err != nil {
-			return err
-		} else if count == 0 {
-			agent.ID = bson.NewObjectId()
-			return c.Insert(agent)
-		} else {
-			_, err := d.C("agent").Upsert(&bson.M{"ip": agent.IP}, bson.M{
-				"$set": bson.M{
-					"name":        agent.Name,
-					"url":         agent.URL,
-					"description": agent.Desc,
-					"updated":     time.Now(),
-				},
-			})
-			return err
-		}
-	})
-
-}
-func (o *AgentService) agentHeartbeatChecking() error {
-	//从 DB 拉取 Agent
-	agents := []*models.AgentInfo{}
-
-	err := db.Do(func(dataBase *mgo.Database) error {
-		return dataBase.C("agent").Find(nil).All(&agents)
-	})
-	if err != nil {
-		return err
-	}
-
-	//保存到内存
-	for _, v := range agents {
-		if o.AgentStore[v.IP] == nil {
-			o.AgentStore[v.IP] = v
-		}
-	}
-
-	//循环检查Agent状态
-	for _, agent := range o.AgentStore {
-		// 未知 或者 在线 时检测
-		if agent.Status == models.AgentStatusOnline || agent.Status == models.AgentStatusUnknown {
-			u := agent.JionPath("/api/sys/status")
-			req := httplib.Get(u)
-			result, err := o.doRequest(req)
-			if err != nil {
-				beego.Warn("检查 Agent 状态失败,", err)
-			}
-			if result != nil && result.Data == "ok" {
-				agent.Status = models.AgentStatusOnline
-			} else {
-				agent.Status = models.AgentStatusOffline
-			}
-			if err := o.UpdateAgentStatus(agent.IP, agent.Status); err != nil {
-				beego.Warn("更新Agent状态失败，", err)
-			}
-		}
-	}
-	return nil
-}
-
-// Post POST 提交数据到Agent
-func (o *AgentService) Post(agent *models.AgentInfo, path string, data interface{}) (*web.Response, error) {
+// HTTPDoRequest 用HTTP提交数据到指定Agent.
+// 返回请求结果数据
+func (as *AgentService) HTTPDoRequest(agent *models.AgentInfo, method string, path string, data ...interface{}) (*web.Response, error) {
 	u := agent.JionPath("api", path)
-	req, err := httplib.Post(u).JSONBody(data)
-	if err != nil {
-		return nil, err
+	var req *httplib.BeegoHTTPRequest
+
+	if method == "post" {
+		req = httplib.Post(u)
+		if len(data) > 0 {
+			var err error
+			req, err = req.JSONBody(data[0])
+			if err != nil {
+				return nil, err
+			}
+		}
+	} else {
+		req = httplib.Get(u)
 	}
-	return o.doRequest(req)
+	return as.doRequest(req)
 }
 
-func (o *AgentService) doRequest(req *httplib.BeegoHTTPRequest) (*web.Response, error) {
+func (as *AgentService) doRequest(req *httplib.BeegoHTTPRequest) (*web.Response, error) {
 	req.Header("Accept", "application/json")
+	req.Header("Agent", fmt.Sprintf("ATOPServer/%s", config.AppCfg.String("version")))
 	response, err := req.DoRequest()
 	if err != nil {
 		return nil, err
@@ -209,13 +170,53 @@ func (o *AgentService) doRequest(req *httplib.BeegoHTTPRequest) (*web.Response, 
 	return resData, nil
 }
 
+// agentHeartbeatChecking 依次将数据库所保存的Agent发送心跳包.
+//
+// 心跳发送前会将内存数据同数据库同步一次,主要是补充内存中尚未保存的Agent信息.
+// 注意心跳包只会发送给非离线的Agent.
+func (as *AgentService) agentHeartbeatChecking() {
+	//从 DB 拉取 Agent
+	agents := []*models.AgentInfo{}
+
+	err := db.Do(func(dataBase *mgo.Database) error {
+		return dataBase.C("agent").Find(nil).All(&agents)
+	})
+	if err != nil {
+		log2.Warn("心跳前获取数据库Agent列表失败,", err.Error())
+	} else {
+		//保存到内存
+		for _, v := range agents {
+			if as.AgentStore[v.IP] == nil {
+				as.AgentStore[v.IP] = v
+			}
+		}
+	}
+
+	//循环检查Agent状态
+	for _, agent := range as.AgentStore {
+		// 未知 或者 在线 时检测
+		if agent.Status == models.AgentStatusOnline || agent.Status == models.AgentStatusUnknown {
+			result, err := as.HTTPDoRequest(agent, "get", "sys/ping")
+			if err != nil {
+				log2.Debugf("检查 Agent<%s> 状态失败,%s", agent.String(), err)
+			}
+			if result != nil && result.Data == "ok" {
+				agent.Status = models.AgentStatusOnline
+			} else {
+				agent.Status = models.AgentStatusOffline
+			}
+			if err := as.UpdateAgentStatus(agent.IP, agent.Status); err != nil {
+				log2.Debugf("更新 Agent<%s> 状态失败,%s", agent.String(), err)
+			}
+		}
+	}
+}
+
 func init() {
+	// BUG(ysqi)  将时间周期设置为可配置.
 	//每5分钟执行一次=5*60
 	t := toolbox.NewTask("维护更新 Agent", "0/300 * * * * *", func() error {
-		err := AgentMgt.agentHeartbeatChecking()
-		if err != nil {
-			beego.Warn("维护更新 Agent 出现错误:", err)
-		}
+		AgentMgt.agentHeartbeatChecking()
 		return nil
 	})
 	toolbox.AddTask(t.Taskname, t)
