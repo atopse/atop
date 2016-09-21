@@ -1,17 +1,18 @@
 package db
 
 import (
+	"errors"
 	"time"
 
 	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 
 	"github.com/ysqi/atop/common/config"
 	"github.com/ysqi/atop/common/log2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var dialInfo *mgo.DialInfo
-var mongoSession *mgo.Session
+var mainSession *mgo.Session
 
 func init() {
 	log2.Info("初始化数据库连接...")
@@ -45,20 +46,11 @@ func init() {
 		Password: pwd,
 	}
 	log2.Infof("测试数据库MongoDB='%s@%s/%s连接'", userName, dbName, host)
-	mongoSession, err = mgo.DialWithInfo(dialInfo)
+	mainSession, err = mgo.DialWithInfo(dialInfo)
 	if err != nil {
 		log2.Fatalf("连接数据库失败,%s", err)
 	}
-	mongoSession.SetMode(mgo.Monotonic, true)
 	log2.Infof("初始化数据库连接成功,登录用户<%s>,数据库<%s@%s>", userName, dbName, host)
-}
-
-// NewSession 新
-func NewSession() *Session {
-	session := mongoSession.Copy()
-	// session.SetMode(mgo.Monotonic, false)
-	// session.DB(dialInfo.Database)
-	return &Session{session}
 }
 
 // Session 封装
@@ -71,30 +63,77 @@ func (s *Session) DefaultDB() *mgo.Database {
 	return s.DB(dialInfo.Database)
 }
 
+// GetSession 获取个连接Session
+func GetSession() (session *Session, err error) {
+	if mainSession == nil {
+		mainSession, err = mgo.DialWithInfo(dialInfo)
+		if err != nil {
+			return
+		}
+		mainSession.SetMode(mgo.Monotonic, false)
+	}
+	session = &Session{mainSession.Copy()}
+	return
+}
+
 // Do 执行数据库操作
 func Do(fn func(db *mgo.Database) error) error {
-	session := NewSession()
+	session, err := GetSession()
+	if err != nil {
+		return err
+	}
 	defer session.Close()
 	db := session.DefaultDB()
 	return fn(db)
 }
 
-// RecordIsExist 检查记录是否存在
-func RecordIsExist(collection string, query interface{}) bool {
+// QueryCount 根据条件查询记录数
+func QueryCount(collection string, query interface{}) (int, error) {
 	if collection == "" {
-		return false
+		return 0, errors.New("集合名称为空")
 	}
-	session := NewSession()
+	session, err := GetSession()
+	if err != nil {
+		return 0, err
+	}
 	defer session.Close()
 	db := session.DefaultDB()
 	count, err := db.C(collection).Find(query).Count()
 	if err != nil {
-		return false
+		return 0, err
 	}
-	return count > 0
+	return count, nil
 }
 
-// RecordIsExistByID 通过ID查询记录是否存在
-func RecordIsExistByID(collection string, id interface{}) bool {
-	return RecordIsExist(collection, bson.M{"_id": id})
+// FindByID 按条件查找单个记录.
+func FindByID(collection string, id interface{}, result interface{}) error {
+	return FindOne(collection, bson.M{"_id": id}, result)
+}
+
+// FindOne 按条件查找单个记录.
+func FindOne(collection string, query interface{}, result interface{}) error {
+	if collection == "" {
+		return errors.New("集合名称为空")
+	}
+	session, err := GetSession()
+	if err != nil {
+		return err
+	}
+	defer session.Close()
+	db := session.DefaultDB()
+	return db.C(collection).Find(query).One(result)
+}
+
+// FindAll 按条件查找所有记录.
+func FindAll(collection string, query interface{}, result interface{}) error {
+	if collection == "" {
+		return errors.New("集合名称为空")
+	}
+	session, err := GetSession()
+	if err != nil {
+		return err
+	}
+	defer session.Close()
+	db := session.DefaultDB()
+	return db.C(collection).Find(query).All(result)
 }

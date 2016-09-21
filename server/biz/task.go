@@ -111,11 +111,6 @@ func (t *TaskService) PushTaskProcess(msg *models.Msg) error {
 		return errors.New("任务进行消息Tag不能为空")
 	}
 
-	taskID := process.CommandID
-	if db.RecordIsExistByID("task", taskID) == false {
-		return errors.New("指定的Task不存在")
-	}
-
 	var newStatus models.TaskStatus
 	if process.Tag == "newStatus" {
 		s := process.Body.(string)
@@ -129,6 +124,14 @@ func (t *TaskService) PushTaskProcess(msg *models.Msg) error {
 	} else if process.Tag == "error" {
 		newStatus = models.TaskStatusErrorDown
 	}
+
+	taskID := process.CommandID
+	if count, err := db.QueryCount("task", bson.M{"_id": taskID}); err != nil {
+		return err
+	} else if count == 0 {
+		return errors.New("指定的Task不存在")
+	}
+
 	if newStatus != "" {
 		//started,processing,stopped,completed
 		//先更新状态，再记录日志
@@ -177,10 +180,13 @@ func (t *TaskService) pushLog(log *models.TaskLog) {
 // 收到log后，将日志保存到DB，如果保存失败，将消息继续PUSH到队列，重新处理.
 func (t *TaskService) saveLog(log interface{}) {
 	taskLog := log.(*models.TaskLog)
-	session := db.NewSession()
-	defer session.Close()
-	db := session.DefaultDB()
-	err := db.C("tasklog").Insert(taskLog)
+	session, err := db.GetSession()
+	if err == nil {
+		defer session.Close()
+		db := session.DefaultDB()
+		err = db.C("tasklog").Insert(taskLog)
+	}
+
 	if err != nil {
 		beego.Warn("Insert TaskLog 失败", err)
 		//回笼

@@ -27,16 +27,7 @@ func init() {
 
 func initCheckItemGroup() error {
 	checkItemList = make([]models.CheckItem, 0, 0)
-
-	session := db.NewSession()
-	defer session.Close()
-
-	c := session.DefaultDB().C("checkitem")
-	err := c.Find(nil).All(&checkItemList)
-	if err != nil {
-		return err
-	}
-	return nil
+	return db.FindAll("checkitem", nil, &checkItemList)
 }
 
 // GetAllCheckItems 获取全部检查项
@@ -46,10 +37,7 @@ func (o *OptCheckService) GetAllCheckItems() []models.CheckItem {
 
 // GetCheckItemByID 根据ID获取检查项
 func (o *OptCheckService) GetCheckItemByID(id string) (item *models.CheckItem, err error) {
-	session := db.NewSession()
-	defer session.Close()
-	c := session.DefaultDB().C("checkitem")
-	err = c.FindId(id).One(item)
+	err = db.FindByID("checkitem", id, item)
 	return
 }
 

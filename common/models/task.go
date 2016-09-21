@@ -22,7 +22,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ysqi/com"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -90,6 +89,7 @@ const (
 // CmdInfo 命令信息
 type CmdInfo struct {
 	ID       bson.ObjectId     `bson:"_id,omitempty"`
+	Name     string            `bson:"name"`
 	Category string            `bson:"category"` //命令类型： cmd, ps, sql
 	ResType  CmdResultType     `bson:"resType"`  //命令结果类型：数字：number, 文本：string, 多行记录：records
 	Command  string            `bson:"command"`  //命令内容
@@ -97,18 +97,11 @@ type CmdInfo struct {
 	Args     []string          `bson:"args"`
 }
 
-var (
-	//SuportCmdCategory 所支持的命令类型
-	SuportCmdCategory = []string{
-		"cmd",
-		"ps",
-		"mssql",
-	}
-)
-
 // Verify 验证输入
 func (c *CmdInfo) Verify() error {
-
+	if c.Name == "" {
+		return errors.New("命令名称不能为空")
+	}
 	if c.Category == "" {
 		return errors.New("命令类型不能为空")
 	}
@@ -120,10 +113,5 @@ func (c *CmdInfo) Verify() error {
 	}
 
 	c.Category = strings.ToLower(c.Category)
-
-	if !com.IsSliceContainsStr(SuportCmdCategory, c.Category) {
-		return errors.New("不支持的命令类型:" + c.Category)
-	}
-
 	return nil
 }
