@@ -6,15 +6,22 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"testing"
 
+	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/context"
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/ysqi/atop/common"
 	"github.com/ysqi/atop/common/config"
 	"github.com/ysqi/atop/common/log2"
-	_ "github.com/ysqi/atop/server/controllers/routers"
 	"github.com/ysqi/beegopkg/web"
 
-	"github.com/astaxie/beego"
+	"strconv"
+
+	. "github.com/smartystreets/goconvey/convey"
+	"github.com/ysqi/atop/server/controllers/api"
+	_ "github.com/ysqi/atop/server/controllers/routers"
 )
 
 func init() {
@@ -90,4 +97,49 @@ func bufferToStruct(buffer *bytes.Buffer) (*web.Response, error) {
 		return nil, err
 	}
 	return resData, nil
+}
+
+func TestUnmarshalBody(t *testing.T) {
+	Convey("解析请求包", t, func() {
+
+		type dt struct {
+			Name  string `json:"Name"`
+			Value int64  `json:"value"`
+		}
+		var data = dt{
+			Name:  "ysqi",
+			Value: 12,
+		}
+
+		check := func(r *http.Request) {
+			c := api.CmdController{}
+			c.Ctx = context.NewContext()
+			c.Ctx.Reset(nil, r)
+			c.Ctx.Input.CopyBody(1024)
+			result := &dt{}
+			err := c.UnmarshalBody(result)
+			So(err, ShouldBeNil)
+			So(result.Name, ShouldEqual, data.Name)
+			So(result.Value, ShouldEqual, data.Value)
+		}
+		Convey("JSON请求", func() {
+			r, _ := http.NewRequest("POST", "/api", nil)
+			bodyWithJSON(r, data)
+			check(r)
+		})
+		Convey("Form表单请求POST", func() {
+			r, _ := http.NewRequest("POST", "/api", nil)
+			r.Form = url.Values{}
+			r.Form.Add("Name", data.Name)
+			r.Form.Add("Value", strconv.FormatInt(data.Value, 10))
+			check(r)
+		})
+		Convey("Form表单请求GET", func() {
+			r, _ := http.NewRequest("GET", "/api", nil)
+			r.Form = url.Values{}
+			r.Form.Add("Name", data.Name)
+			r.Form.Add("Value", strconv.FormatInt(data.Value, 10))
+			check(r)
+		})
+	})
 }
