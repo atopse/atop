@@ -35,5 +35,5 @@ func (c *CheckConroller) NeedCheckLogin() bool {
 func (c *CheckConroller) Index() {
 	c.TplName = "check/check.html"
 
-	// c.Data["checkItems"] = biz.GetAllCheckItems()
+	// c.Data["checkItems"] = core.GetAllCheckItems()
 }

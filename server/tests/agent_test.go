@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/ysqi/atop/common/models"
-	"github.com/ysqi/atop/server/biz"
+	"github.com/ysqi/atop/server/core"
 
 	"github.com/astaxie/beego"
 	. "github.com/smartystreets/goconvey/convey"
@@ -104,7 +104,7 @@ func TestAgentOffline(t *testing.T) {
 			})
 		}
 		Convey("Agent离线DB检查", func() {
-			agent, err := biz.AgentMgt.GetAgentInfo(ip, true)
+			agent, err := core.AgentMgt.GetAgentInfo(ip, true)
 			So(err, ShouldBeNil)
 			So(agent.IP, ShouldEqual, ip)
 			So(agent.Status, ShouldEqual, models.AgentStatusOffline)

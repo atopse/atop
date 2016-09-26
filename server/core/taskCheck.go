@@ -1,4 +1,4 @@
-package biz
+package core
 
 
 func (t TaskService) CheckTaskResult()  {

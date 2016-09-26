@@ -9,7 +9,7 @@ import (
 	"github.com/astaxie/beego"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/ysqi/atop/common/models"
-	"github.com/ysqi/atop/server/biz"
+	"github.com/ysqi/atop/server/core"
 	"github.com/ysqi/beegopkg/web"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -26,7 +26,7 @@ func TestPushCommandMsg(t *testing.T) {
 				Command:  "ipconfig",
 			},
 		}
-		err := biz.TaskMgt.NewTask(task)
+		err := core.TaskMgt.NewTask(task)
 		t.Log(task.ID)
 		So(err, ShouldBeNil)
 		msg := models.Msg{

@@ -7,7 +7,7 @@ import (
 	"github.com/pquerna/ffjson/ffjson"
 
 	"github.com/ysqi/atop/common/models"
-	"github.com/ysqi/atop/server/biz"
+	"github.com/ysqi/atop/server/core"
 )
 
 // MsgController 消息处理
@@ -41,5 +41,5 @@ func (m *MsgController) doCommandMsg() error {
 	if err := msg.Verify(); err != nil {
 		return err
 	}
-	return biz.TaskMgt.PushTaskProcess(msg)
+	return core.TaskMgt.PushTaskProcess(msg)
 }

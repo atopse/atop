@@ -4,7 +4,7 @@ import (
 	"github.com/pquerna/ffjson/ffjson"
 
 	"github.com/ysqi/atop/common/models"
-	"github.com/ysqi/atop/server/biz"
+	"github.com/ysqi/atop/server/core"
 	"github.com/ysqi/com"
 )
 
@@ -27,7 +27,7 @@ func (a *AgentController) SayHello() {
 		a.OutputError(err)
 		return
 	}
-	err = biz.AgentMgt.UpdateAgent(*agent, true)
+	err = core.AgentMgt.UpdateAgent(*agent, true)
 	a.OutputDoResult(err)
 
 }
@@ -50,6 +50,6 @@ func (a *AgentController) Offline() {
 		a.OutputError("参数ip非法")
 		return
 	}
-	err := biz.AgentMgt.UpdateAgentStatus(ip, models.AgentStatusOffline)
+	err := core.AgentMgt.UpdateAgentStatus(ip, models.AgentStatusOffline)
 	a.OutputDoResult(err)
 }

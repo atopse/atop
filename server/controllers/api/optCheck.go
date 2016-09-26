@@ -8,7 +8,7 @@ type OptCheckController struct {
 // GetCheckItems 获取检查项列表
 // @router /optcheck/list/ [get]
 func (o *OptCheckController) GetCheckItems() {
-	// items := biz.GetAllCheckItems()
+	// items := core.GetAllCheckItems()
 	// o.OutputSuccess(items)
 }
 
