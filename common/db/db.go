@@ -96,9 +96,9 @@ func QueryCount(collection string, query interface{}) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	defer session.Close()
 	db := session.DefaultDB()
 	count, err := db.C(collection).Find(query).Count()
+	session.Close()
 	if err != nil {
 		return 0, err
 	}
@@ -119,9 +119,10 @@ func FindOne(collection string, query interface{}, result interface{}) error {
 	if err != nil {
 		return err
 	}
-	defer session.Close()
 	db := session.DefaultDB()
-	return db.C(collection).Find(query).One(result)
+	err = db.C(collection).Find(query).One(result)
+	session.Close()
+	return err
 }
 
 // FindAll 按条件查找所有记录.
@@ -133,7 +134,23 @@ func FindAll(collection string, query interface{}, result interface{}) error {
 	if err != nil {
 		return err
 	}
-	defer session.Close()
 	db := session.DefaultDB()
-	return db.C(collection).Find(query).All(result)
+	err = db.C(collection).Find(query).All(result)
+	session.Close()
+	return err
+}
+
+// Insert 按条件查找所有记录.
+func Insert(collection string, docs ...interface{}) error {
+	if collection == "" {
+		return errors.New("集合名称为空")
+	}
+	session, err := GetSession()
+	if err != nil {
+		return err
+	}
+	db := session.DefaultDB()
+	err = db.C(collection).Insert(docs...)
+	session.Close()
+	return err
 }
