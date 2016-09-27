@@ -53,6 +53,6 @@ func TestPushCommandMsg(t *testing.T) {
 		actual, err := bufferToStruct(w.Body)
 		So(err, ShouldBeNil)
 		So(w, ShouldBeGoodResponse)
-		So(actual, ShouldBeEqualResponse, &web.Response{Code: 200})
+		So(actual, ShouldBeEqualResponse, &web.Response{StatusCode: 200})
 	})
 }

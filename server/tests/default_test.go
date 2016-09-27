@@ -55,11 +55,11 @@ func ShouldBeEqualResponse(actual interface{}, expected ...interface{}) string {
 	if exp == nil {
 		return "expected=<nil>"
 	}
-	if exp.Code != result.Code && result.Code != 200 {
+	if exp.StatusCode != result.StatusCode && result.StatusCode != 200 {
 		printJSON(result)
 	}
-	if exp.Code != result.Code {
-		return fmt.Sprintf("Response Code 期望是%d，实际上是：%d", exp.Code, result.Code)
+	if exp.StatusCode != result.StatusCode {
+		return fmt.Sprintf("Response Code 期望是%d，实际上是：%d", exp.StatusCode, result.StatusCode)
 	}
 	return ""
 }
