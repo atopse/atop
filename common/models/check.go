@@ -37,8 +37,8 @@ type CheckItem struct {
 
 // ResultCheckWay 数据检查模式
 type ResultCheckWay struct {
-	Way     assertions.Assertion `bson:"way"`
-	Params  []interface{}        `bson:"params"`
-	Leval   string               `bson:"level"` //Level 基本：info, warn，error
-	Options map[string]string    `bson:"options"`
+	Way     assertions.Assertion   `bson:"way"`
+	Params  map[string]interface{} `bson:"params"`
+	Leval   string                 `bson:"level"` //Level 基本：info, warn，error
+	Options map[string]string      `bson:"options"`
 }

@@ -19,9 +19,11 @@ package models
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
+	"github.com/ysqi/com"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -56,6 +58,30 @@ type Task struct {
 	Options     map[string]interface{} `bson:"options"`     //更新相关信息
 	ResultCheck []*ResultCheckWay      `bson:"resultCheck"` //数据检查方式
 	Cmd         *CmdInfo               `bson:"cmd"`         //命令信息
+}
+
+// Verify 返回任务基础信息检查结果.
+func (t *Task) Verify() error {
+	if t.Name == "" {
+		return errors.New("任务名称不能未空")
+	}
+	if t.TargetIP == "" {
+		return errors.New("任务执行所在服务器IP不能为空")
+	} else if com.IsIP(t.TargetIP) == false {
+		return fmt.Errorf("<%s>是不正确的IP格式", t.TargetIP)
+	}
+	if t.TargetIP2 != "" && com.IsIP(t.TargetIP2) == false {
+		return fmt.Errorf("<%s>是不正确的IP格式", t.TargetIP2)
+	}
+	if t.Cmd == nil {
+		return errors.New("任务执行命令不能未空")
+	} else if err := t.Cmd.Verify(); err != nil {
+		return err
+	}
+	if len(t.ResultCheck) == 0 {
+		return errors.New("任务执行结构检查设置不能为空")
+	}
+	return nil
 }
 
 // TaskLog 任务日志

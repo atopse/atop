@@ -31,23 +31,30 @@ func (t *TaskService) GetTaskInfo(taskID interface{}) (*models.Task, error) {
 	})
 }
 
-// NewTask 新建保存任务
+// NewTask 返回新建任务处理结果。
+// 新建任务时，将再Command信息中记录TaskID
 func (t *TaskService) NewTask(task *models.Task) error {
-	task.ID = bson.NewObjectId()
-	if task.Cmd != nil {
-		task.Cmd.ID = task.ID
+	if err := task.Verify(); err != nil {
+		return err
 	}
+	task.ID = bson.NewObjectId()
+	task.Cmd.ID = task.ID //保存任务ID
 	if task.Options == nil {
 		task.Options = make(map[string]interface{})
 	}
 	task.Status = models.TaskStatusNew
-	return db.Do(func(dataBase *mgo.Database) error {
-		return dataBase.C("task").Insert(task)
-	})
+	return db.Insert("task", task)
 }
 
 // StartTask 开启任务
-func (t *TaskService) StartTask(task *models.Task) error {
+func (t *TaskService) StartTask(taskID bson.ObjectId) error {
+	if taskID == "" {
+		return errors.New("任务ID")
+	}
+	task, err := t.GetTaskInfo(taskID)
+	if err != nil {
+		return err
+	}
 	hasError := func(err error) error {
 		t.PushLog(task.ID, err.Error())
 		if err2 := t.UpdateTaskStatus(task.ID, models.TaskStatusErrorDown); err2 != nil {
@@ -61,7 +68,7 @@ func (t *TaskService) StartTask(task *models.Task) error {
 		return hasError(fmt.Errorf("任务执行目标服务器[%s,%s]不存在", task.TargetIP, task.TargetIP2))
 	}
 
-	_, err := AgentMgt.HTTPDoRequest(agent, "post", "/api/command/exec", task.Cmd)
+	_, err = AgentMgt.HTTPDoRequest(agent, "post", "/api/command/exec", task.Cmd)
 	if err != nil {
 		return hasError(fmt.Errorf("任务推送给Agent:%s失败,%s", agent, err))
 	}

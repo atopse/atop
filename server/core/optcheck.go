@@ -100,7 +100,7 @@ func (o *OptCheckService) runCheckItem(item *models.CheckItem) (*models.Task, er
 	if err := TaskMgt.NewTask(task); err != nil {
 		return nil, err
 	}
-	if err := TaskMgt.StartTask(task); err != nil {
+	if err := TaskMgt.StartTask(task.ID); err != nil {
 		return task, err
 	}
 	return task, nil

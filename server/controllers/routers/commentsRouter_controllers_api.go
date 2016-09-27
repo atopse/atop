@@ -48,4 +48,18 @@ func init() {
 			AllowHTTPMethods: []string{"get"},
 			Params: nil})
 
+	beego.GlobalControllerRouter["github.com/ysqi/atop/server/controllers/api:TaskController"] = append(beego.GlobalControllerRouter["github.com/ysqi/atop/server/controllers/api:TaskController"],
+		beego.ControllerComments{
+			Method: "NewTask",
+			Router: `/task/new`,
+			AllowHTTPMethods: []string{"post"},
+			Params: nil})
+
+	beego.GlobalControllerRouter["github.com/ysqi/atop/server/controllers/api:TaskController"] = append(beego.GlobalControllerRouter["github.com/ysqi/atop/server/controllers/api:TaskController"],
+		beego.ControllerComments{
+			Method: "Start",
+			Router: `/task/start`,
+			AllowHTTPMethods: []string{"post"},
+			Params: nil})
+
 }

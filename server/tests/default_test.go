@@ -55,11 +55,11 @@ func ShouldBeEqualResponse(actual interface{}, expected ...interface{}) string {
 	if exp == nil {
 		return "expected=<nil>"
 	}
-	if exp.StatusCode != result.StatusCode && result.StatusCode != 200 {
+	if exp.Code != result.Code && result.Code != 200 {
 		printJSON(result)
 	}
-	if exp.StatusCode != result.StatusCode {
-		return fmt.Sprintf("Response Code 期望是%d，实际上是：%d", exp.StatusCode, result.StatusCode)
+	if exp.Code != result.Code {
+		return fmt.Sprintf("Response Code 期望是%d，实际上是：%d", exp.Code, result.Code)
 	}
 	return ""
 }
@@ -112,7 +112,7 @@ func TestUnmarshalBody(t *testing.T) {
 		}
 
 		check := func(r *http.Request) {
-			c := api.CmdController{}
+			c := api.SystemController{}
 			c.Ctx = context.NewContext()
 			c.Ctx.Reset(nil, r)
 			c.Ctx.Input.CopyBody(1024)

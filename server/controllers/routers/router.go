@@ -33,6 +33,7 @@ func init() {
 			&api.SystemController{},
 			&api.AgentController{},
 			&api.MsgController{},
+			&api.TaskController{},
 		),
 	)
 	beego.AddNamespace(ns)
