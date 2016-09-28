@@ -55,18 +55,9 @@ func TestFindAgent(t *testing.T) {
 	Convey("Agent 心跳请求测试", t, func() {
 		for _, c := range testCases {
 			Convey(c.title, func() {
-				r, _ := http.NewRequest("POST", "/api/agent/sayhello", nil)
-				bodyWithJSON(r, c.data)
-				w := httptest.NewRecorder()
-				beego.BeeApp.Handlers.ServeHTTP(w, r)
-				ShouldBeGoodResponse(w)
-				actual, err := bufferToStruct(w.Body)
+				actual, err := agentSayHello(c.data)
 				So(err, ShouldBeNil)
-				So(w, ShouldBeGoodResponse)
 				So(actual, ShouldBeEqualResponse, c.expected)
-
-				//检查数据库数据
-
 			})
 		}
 
@@ -110,4 +101,14 @@ func TestAgentOffline(t *testing.T) {
 			So(agent.Status, ShouldEqual, models.AgentStatusOffline)
 		})
 	})
+}
+
+func agentSayHello(agent *models.AgentInfo) (*web.Response, error) {
+	r, _ := http.NewRequest("POST", "/api/agent/sayhello", nil)
+	bodyWithJSON(r, agent)
+	w := httptest.NewRecorder()
+	beego.BeeApp.Handlers.ServeHTTP(w, r)
+	ShouldBeGoodResponse(w)
+	So(w, ShouldBeGoodResponse)
+	return bufferToStruct(w.Body)
 }

@@ -119,6 +119,27 @@ func (as *AgentService) UpdateAgentStatus(ip string, status models.AgentStatus) 
 func (as *AgentService) GetOnlineAgent(ip string, backupIPs ...string) *models.AgentInfo {
 	agent := as.AgentStore[ip]
 	if agent == nil || agent.Status != models.AgentStatusOnline {
+		// 发送请求到Agent,检查是否在线
+		response, err := as.HTTPDoRequest(
+			&models.AgentInfo{IP: ip, URL: fmt.Sprintf("http://%s:%d", ip, config.AppCfg.DefaultInt("agentPort", 8909))},
+			"get", "ping",
+		)
+		if err == nil && response.Data != nil {
+			if a, ok := response.Data.(map[string]interface{}); ok {
+				agent = &models.AgentInfo{
+					IP:   a["IP"].(string),
+					URL:  a["URL"].(string),
+					Name: a["Name"].(string),
+				}
+				if err = as.UpdateAgent(*agent, true); err != nil {
+					log2.Warnf("主动更新Agent信息失败,", err)
+				} else {
+					return agent
+				}
+			}
+
+		}
+
 		if len(backupIPs) == 0 {
 			return nil
 		}

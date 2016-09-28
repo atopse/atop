@@ -68,7 +68,7 @@ func (t *TaskService) StartTask(taskID bson.ObjectId) error {
 		return hasError(fmt.Errorf("任务执行目标服务器[%s,%s]不存在", task.TargetIP, task.TargetIP2))
 	}
 
-	_, err = AgentMgt.HTTPDoRequest(agent, "post", "/api/command/exec", task.Cmd)
+	_, err = AgentMgt.HTTPDoRequest(agent, "post", "/command/exec", task.Cmd)
 	if err != nil {
 		return hasError(fmt.Errorf("任务推送给Agent:%s失败,%s", agent, err))
 	}

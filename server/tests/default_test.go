@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"testing"
 
 	"github.com/astaxie/beego"
@@ -18,6 +19,9 @@ import (
 	"github.com/ysqi/beegopkg/web"
 
 	"strconv"
+
+	"os/exec"
+	"path/filepath"
 
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/ysqi/atop/server/controllers/api"
@@ -32,6 +36,16 @@ func init() {
 	})
 	beego.InitBeegoBeforeTest(config.AppCfgPath)
 	beego.SetLogFuncCall(false)
+	startAgent()
+}
+func startAgent() {
+	log2.Debug("run a new agent for test")
+	f := filepath.Join(os.Getenv("GOPATH"), "github.com/ysqi/atop/agent/main.go")
+	cmd := exec.Command("go", "run", f)
+	err := cmd.Start()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func ShouldBeGoodResponse(actual interface{}, expected ...interface{}) string {
@@ -93,8 +107,11 @@ func bufferToStruct(buffer *bytes.Buffer) (*web.Response, error) {
 	}
 	resData := &web.Response{}
 	if err = ffjson.Unmarshal(body, resData); err != nil {
-		beego.Debug("Respone Body:\n", string(body), "\n ------body end")
+		log2.Debug("Respone Body:\n", string(body), "\n ------body end")
 		return nil, err
+	}
+	if err = resData.CheckStatus(); err != nil {
+		log2.Debug("Get Response body:", string(body))
 	}
 	return resData, nil
 }

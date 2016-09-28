@@ -1,8 +1,10 @@
 package api
 
-import "github.com/ysqi/atop/common/models"
-import "github.com/ysqi/atop/server/core"
-import "gopkg.in/mgo.v2/bson"
+import (
+	"github.com/ysqi/atop/common/models"
+	"github.com/ysqi/atop/server/core"
+	"gopkg.in/mgo.v2/bson"
+)
 
 // TaskController Task相关
 type TaskController struct {
@@ -23,7 +25,7 @@ func (t *TaskController) NewTask() {
 		t.OutputError(err)
 		return
 	}
-	t.OutputSuccess(map[string]string{"taskID": task.ID.String()})
+	t.OutputSuccess(map[string]string{"taskID": task.ID.Hex()})
 }
 
 // Start 执行指定任务，并返回任务推送结果。
@@ -31,11 +33,17 @@ func (t *TaskController) NewTask() {
 //
 // @router /task/start [post]
 func (t *TaskController) Start() {
-	var taskID string
-	if err := t.UnmarshalBody(&taskID); err != nil {
+	data := make(map[string]string)
+	if err := t.UnmarshalBody(&data); err != nil {
 		t.OutputError(err)
 		return
 	}
-	err := core.TaskMgt.StartTask(bson.ObjectId(taskID))
-	t.OutputDoResult(err)
+	if taskID, ok := data["taskID"]; !ok {
+		t.OutputError("缺少参数taskID")
+	} else if taskID == "" {
+		t.OutputError("taskID不能为空")
+	} else {
+		err := core.TaskMgt.StartTask(bson.ObjectIdHex(taskID))
+		t.OutputDoResult(err)
+	}
 }
