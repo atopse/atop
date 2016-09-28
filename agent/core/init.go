@@ -3,17 +3,18 @@ package core
 import (
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/astaxie/beego"
 	"github.com/ysqi/atop/agent/core/server"
 	"github.com/ysqi/atop/common/models"
-	"github.com/astaxie/beego"
+	"github.com/ysqi/com"
 )
 
-var localhostInfo = &models.AgentInfo{}
+// CurrentAgent 当前Ageng实例信息
+var CurrentAgent = &models.AgentInfo{}
 
 func init() {
 
@@ -27,7 +28,7 @@ func initInfo() error {
 		return err
 	}
 	beego.Info("初始化 Agent 信息完成")
-	if err := server.InitServerInfo(localhostInfo); err != nil {
+	if err := server.InitServerInfo(CurrentAgent); err != nil {
 		return err
 	}
 	beego.Info("初始化 Server 信息完成")
@@ -43,67 +44,33 @@ func initLocalhostInfo() error {
 	if err != nil {
 		return err
 	}
-	localhostInfo.Name = cfg["name"]
-	localhostInfo.IP = cfg["ip"]
+	CurrentAgent.Name = cfg["name"]
+	CurrentAgent.IP = cfg["ip"]
 
-	if localhostInfo.Name == "" {
-		localhostInfo.Name, _ = os.Hostname()
+	if CurrentAgent.Name == "" {
+		CurrentAgent.Name, _ = os.Hostname()
 	}
-	if localhostInfo.IP == "" {
-		localhostInfo.IP, _ = externalIP()
+	if CurrentAgent.IP == "" {
+		CurrentAgent.IP, err = com.ExternalIP()
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	if localhostInfo.Name == "" {
+	if CurrentAgent.Name == "" {
 		return errors.New("本机计算机名称尚未配置/获取失败，localhost.name")
 	}
-	if localhostInfo.IP == "" {
+	if CurrentAgent.IP == "" {
 		return errors.New("本机IP尚未配置/获取失败，localhost.ip")
 	}
-	localhostInfo.URL = fmt.Sprintf("http://%s:%d", localhostInfo.IP, beego.BConfig.Listen.HTTPPort)
+	CurrentAgent.URL = fmt.Sprintf("http://%s:%d", CurrentAgent.IP, beego.BConfig.Listen.HTTPPort)
 	beego.Info(fmt.Sprintf(`
 	当前 Agent 信息:
 	Name: %s
 	IP  : %s
 	URL : %s
-	`, localhostInfo.Name, localhostInfo.IP, localhostInfo.URL))
+	`, CurrentAgent.Name, CurrentAgent.IP, CurrentAgent.URL))
 	return nil
-}
-
-func externalIP() (string, error) {
-	ifaces, err := net.Interfaces()
-	if err != nil {
-		return "", err
-	}
-	for _, iface := range ifaces {
-		if iface.Flags&net.FlagUp == 0 {
-			continue // interface down
-		}
-		if iface.Flags&net.FlagLoopback != 0 {
-			continue // loopback interface
-		}
-		addrs, err := iface.Addrs()
-		if err != nil {
-			return "", err
-		}
-		for _, addr := range addrs {
-			var ip net.IP
-			switch v := addr.(type) {
-			case *net.IPNet:
-				ip = v.IP
-			case *net.IPAddr:
-				ip = v.IP
-			}
-			if ip == nil || ip.IsLoopback() {
-				continue
-			}
-			ip = ip.To4()
-			if ip == nil {
-				continue // not an ipv4 address
-			}
-			return ip.String(), nil
-		}
-	}
-	return "", errors.New("are you connected to the network?")
 }
 
 // sayHelloWithServer 定期和Server握手
@@ -113,7 +80,7 @@ func sayHelloWithServer() {
 		var t = time.Duration(period) * time.Minute
 		for {
 
-			_, err := server.Post("/agent/sayhello", localhostInfo)
+			_, err := server.Post("/agent/sayhello", CurrentAgent)
 
 			//如果请求超时,则10秒后重试
 			if err == http.ErrHandlerTimeout {

@@ -19,7 +19,7 @@ type CmdController struct {
 // @Param	body		body 	models.Response	true   CmdInfo
 // @Success 200 {string} models.Response
 // @Failure 403 body is empty
-// @router /exec [post]
+// @router /command/exec [post]
 func (c *CmdController) Exec() {
 	var cmd *m.CmdInfo
 	beego.Debug(string(c.Ctx.Input.RequestBody))

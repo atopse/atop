@@ -8,7 +8,6 @@
 package routers
 
 import (
-	"github.com/ysqi/atop/agent/api"
 	"github.com/ysqi/atop/agent/controllers"
 
 	"github.com/astaxie/beego"
@@ -18,7 +17,7 @@ func init() {
 	ns := beego.NewNamespace("/api/",
 		beego.NSInclude(
 			&controllers.CmdController{},
-			&api.SystemController{},
+			&controllers.SystemController{},
 		),
 	)
 	beego.AddNamespace(ns)

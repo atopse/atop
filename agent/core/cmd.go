@@ -56,13 +56,13 @@ func execCmd(cmdInfo *m.CmdInfo) {
 		CommandID: cmdInfo.ID,
 	}
 	newProcess := func(newStatus string) {
-		info.Content.Tag = "newStatus"
-		info.Content.Body = newStatus
+		info.Tag = "newStatus"
+		info.Body = newStatus
 		PushMsg("command", info)
 	}
 	sendErrorStop := func(err interface{}) {
-		info.Content.Tag = "error"
-		info.Content.Body = fmt.Sprintf("异常，命令已停止,%v", err)
+		info.Tag = "error"
+		info.Body = fmt.Sprintf("异常，命令已停止,%v", err)
 		PushMsg("command", info)
 	}
 	defer func() {
@@ -77,8 +77,8 @@ func execCmd(cmdInfo *m.CmdInfo) {
 		sendErrorStop(err)
 		return
 	}
-	info.Content.Tag = "result"
-	info.Content.Body = result
+	info.Tag = "result"
+	info.Body = result
 	PushMsg("command", info)
 	newProcess("completed")
 }
