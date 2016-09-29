@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"syscall"
 	"testing"
 
 	"github.com/astaxie/beego"
@@ -23,6 +24,10 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"sync"
+
+	"time"
+
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/ysqi/atop/server/controllers/api"
 	_ "github.com/ysqi/atop/server/controllers/routers"
@@ -36,16 +41,60 @@ func init() {
 	})
 	beego.InitBeegoBeforeTest(config.AppCfgPath)
 	beego.SetLogFuncCall(false)
-	startAgent()
 }
-func startAgent() {
-	log2.Debug("run a new agent for test")
-	f := filepath.Join(os.Getenv("GOPATH"), "github.com/ysqi/atop/agent/main.go")
-	cmd := exec.Command("go", "run", f)
-	err := cmd.Start()
-	if err != nil {
-		panic(err)
+
+var agent *exec.Cmd
+
+func before() {
+	log2.Debug("running local agent...")
+
+	// 后台运行一个Agent
+	agent = exec.Command("go", "run", "main.go")
+	agent.Dir = filepath.Join(os.Getenv("GOPATH"), "src/github.com/ysqi/atop/agent")
+	if err := agent.Start(); err != nil {
+		log2.Fatalln(err)
 	}
+	// 等待Agent运行成功,尝试10次ping
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		try := 0
+		for {
+			try++
+			time.Sleep(1 * time.Second)
+			resp, err := http.Head("http://localhost:8909/api/ping")
+			if err != nil {
+				log2.Error(err)
+			} else if resp.StatusCode == 200 {
+				break
+			}
+			if try == 10 {
+				break
+			}
+		}
+		wg.Done()
+	}()
+	wg.Wait()
+}
+
+func after() {
+	if agent != nil {
+		log2.Debug("send singal to agent")
+		agent.Process.Signal(syscall.SIGQUIT)
+		if err := agent.Process.Kill(); err != nil {
+			log2.Error(err)
+		}
+	}
+}
+func TestMain(m *testing.M) {
+	before()
+	code := m.Run()
+	after()
+	os.Exit(code)
+}
+
+func TestOK(t *testing.T) {
+	t.Log("OK")
 }
 
 func ShouldBeGoodResponse(actual interface{}, expected ...interface{}) string {

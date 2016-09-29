@@ -139,13 +139,12 @@ func TestStartTask(t *testing.T) {
 			Convey(c.title, func() {
 				r, _ := http.NewRequest("POST", "/api/task/start", nil)
 				bodyWithJSON(r, c.data)
-				w := httptest.NewRecorder()
+				w := httptest.NewRecorder() 
 				beego.BeeApp.Handlers.ServeHTTP(w, r)
 				actual, err := bufferToStruct(w.Body)
 				So(err, ShouldBeNil)
 				So(w, ShouldBeGoodResponse)
 				So(actual, ShouldBeEqualResponse, c.expected)
-				//检查数据库数据
 			})
 		}
 
