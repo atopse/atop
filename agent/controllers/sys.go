@@ -7,7 +7,7 @@ type SystemController struct {
 }
 
 // Status 获取Agent状态
-// @router /ping [get]
+// @router /ping [get,head]
 func (s *SystemController) Ping() {
 	s.OutputSuccess(core.CurrentAgent)
 }
