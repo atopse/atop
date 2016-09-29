@@ -55,6 +55,9 @@ func (t *TaskService) StartTask(taskID bson.ObjectId) error {
 	if err != nil {
 		return err
 	}
+	if task.Status != models.TaskStatusNew {
+		return fmt.Errorf("任务状态<%s>为非初始状态,不允许重新允许", task.Status)
+	}
 	hasError := func(err error) error {
 		t.PushLog(task.ID, err.Error())
 		if err2 := t.UpdateTaskStatus(task.ID, models.TaskStatusErrorDown); err2 != nil {

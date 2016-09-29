@@ -131,6 +131,8 @@ func (as *AgentService) GetOnlineAgent(ip string, backupIPs ...string) *models.A
 					URL:  a["URL"].(string),
 					Name: a["Name"].(string),
 				}
+				log2.Debugf("ping agent<%s> success,the default url is %s", agent.String(), agent.URL)
+
 				if err = as.UpdateAgent(*agent, true); err != nil {
 					log2.Warnf("主动更新Agent信息失败,", err)
 				} else {
